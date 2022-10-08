@@ -1,12 +1,13 @@
 // TODO: props validation
+import qs from "query-string";
 import { useEffect, useState, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import qs from "query-string";
+
 import Pagination from "./Pagination";
 import Table from "./Table";
 import Search from "./Search";
 import Info from "./Info";
-import { SORT_STATE } from "./common.js";
+import { SORT_STATE, getStateFromHistory } from "./common.js";
 
 // TODO: move out of this file
 // TODO: add header title/accessor
@@ -20,6 +21,9 @@ import { SORT_STATE } from "./common.js";
             },
         ],
 */
+// override components: https://material-table.com/#/docs/features/component-overriding
+// TODO: allow callbacks for key events (onCellClick, onSearch, onPaginationChange, onSort): https://material-table.com/#/docs/features/selection
+
 const ErrorFallback = ({ error }) => {
   return (
     <div role="alert">
@@ -45,67 +49,13 @@ const TableContainer = ({
   onSelectionChange,
   onPaginationChange,
 }) => {
-  const getStateFromHistory = () => {
-    const urlState = {};
-
-    const { query } = qs.parseUrl(window.location.href);
-    const {
-      perPage,
-      currentPage,
-      searchTermFilter = "",
-      sort,
-      selectedIndexes,
-    } = query;
-    if (perPage) {
-      urlState.perPage = parseInt(perPage, 10);
-    }
-    if (currentPage) {
-      urlState.currentPage = parseInt(currentPage, 10);
-    }
-    urlState.searchTermFilter = searchTermFilter;
-
-    const filter = {};
-    columns.forEach((col) => {
-      filter[col] = SORT_STATE.NONE;
-    });
-    if (sort) {
-      const [sortedCol, state] = sort.split(":");
-      filter[sortedCol] = state;
-    }
-    urlState.sort = filter;
-    if (selectedIndexes) {
-      urlState.selectedIndexes = selectedIndexes
-        .split(",")
-        .map((idx) => parseInt(idx, 10));
-    }
-    return urlState;
-  };
-
-  const modifyHistory = () => {
-    const { url } = qs.parseUrl(window.location.href);
-    const colToSort = Object.keys(sortFilter).find(
-      (col) => sortFilter[col] !== SORT_STATE.NONE
-    );
-    const query = {
-      perPage,
-      currentPage,
-      searchTermFilter,
-      selectedIndexes,
-    };
-    if (colToSort) {
-      query.sort = `${colToSort}:${sortFilter[colToSort]}`;
-    }
-    const newUrl = qs.stringifyUrl({ url, query }, { arrayFormat: "comma" });
-    window.history.pushState(query, "", newUrl);
-  };
-
   const {
     perPage: perPageHistory,
     currentPage: currentPageHistory,
     searchTermFilter: searchTermFilterHistory,
     sort: sortHistory,
     selectedIndexes: selectedIndexesHistory,
-  } = getStateFromHistory();
+  } = getStateFromHistory(columns);
 
   const [total, setTotal] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -205,6 +155,24 @@ const TableContainer = ({
       checkboxAllRef.current.indeterminate = false;
     }
   }, [selectedIndexes, total]);
+
+  const modifyHistory = () => {
+    const { url } = qs.parseUrl(window.location.href);
+    const colToSort = Object.keys(sortFilter).find(
+      (col) => sortFilter[col] !== SORT_STATE.NONE
+    );
+    const query = {
+      perPage,
+      currentPage,
+      searchTermFilter,
+      selectedIndexes,
+    };
+    if (colToSort) {
+      query.sort = `${colToSort}:${sortFilter[colToSort]}`;
+    }
+    const newUrl = qs.stringifyUrl({ url, query }, { arrayFormat: "comma" });
+    window.history.pushState(query, "", newUrl);
+  };
 
   return (
     <>

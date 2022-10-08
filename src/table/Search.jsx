@@ -1,10 +1,6 @@
 // TODO: props validation
 
-const Search = ({
-  searchTermFilter,
-  setSearchTermFilter,
-  searchColumn,
-}) => {
+const Search = ({ searchTermFilter, setSearchTermFilter, searchColumn }) => {
   const onChangeSearchTermFilter = (e) => {
     const { value } = e.target;
     setSearchTermFilter(value);
