@@ -154,7 +154,6 @@ const Table = ({
   return (
     <table>
       <thead>
-        w
         <tr>
           <th>{selectable && INTERNAL_renderCheckboxAll()}</th>
           {INTERNAL_renderColumns()}
