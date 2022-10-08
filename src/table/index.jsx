@@ -15,7 +15,6 @@ import { ErrorBoundary } from "react-error-boundary";
         ],
 */
 
-
 const ErrorFallback = ({ error }) => {
   return (
     <div role="alert">
@@ -55,6 +54,11 @@ const Table = ({
   const [sortFilter, setSortFilter] = useState("");
   const checkboxAllRef = useRef();
 
+  // ------Pagination-----
+  const [paginatedData, setPaginatedData] = useState([]);
+  const [perPage, setPerpage] = useState(25);
+  const [currentPage, setCurrentPage] = useState(1);
+
   // handle initial dataSource
   useEffect(() => {
     const getData = async () => {
@@ -75,7 +79,7 @@ const Table = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // // handle initial filter
+  // handle initial filter
   useEffect(() => {
     const filter = {};
     columns.forEach((col) => {
@@ -92,36 +96,43 @@ const Table = ({
     const colToSort = Object.keys(sortFilter).find(
       (col) => sortFilter[col] !== SORT_STATE.NONE
     );
-    if (colToSort) {
+    if (sortable && colToSort) {
       filteredData.sort((a, b) => {
-        if (typeof a[colToSort] === 'number') {
+        if (typeof a[colToSort] === "number") {
           if (sortFilter[colToSort] === SORT_STATE.ASC) {
-            return a[colToSort] - b[colToSort]
+            return a[colToSort] - b[colToSort];
           } else {
-            return b[colToSort] - a[colToSort]
+            return b[colToSort] - a[colToSort];
           }
-        } else if (typeof a[colToSort] === 'string') {
+        } else if (typeof a[colToSort] === "string") {
           if (sortFilter[colToSort] === SORT_STATE.ASC) {
-            return a[colToSort].localeCompare(b[colToSort])
+            return a[colToSort].localeCompare(b[colToSort]);
           } else {
-            return b[colToSort].localeCompare(a[colToSort])
+            return b[colToSort].localeCompare(a[colToSort]);
           }
         } else {
-          throw new Error('data type not supported for sorting')
+          throw new Error("data type not supported for sorting");
         }
       });
     }
+
     setFilteredData(filteredData);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, sortFilter, tableData]);
 
   useEffect(() => {
-    setTotal(filteredData.length);
-  }, [filteredData]);
+    const start = (currentPage - 1) * perPage
+    console.log({ start, end: start + perPage})
+    setPaginatedData(filteredData.slice(start, start + perPage));
+  }, [filteredData, perPage, currentPage]);
+
+  useEffect(() => {
+    setTotal(paginatedData.length);
+  }, [paginatedData]);
 
   useEffect(() => {
     setSelectedIndexes([]);
-  }, [tableData, searchTermFilter]);
+  }, [paginatedData]);
 
   useEffect(() => {
     // if neither empty nor all checked, set indeterminate = true
@@ -185,7 +196,7 @@ const Table = ({
   };
 
   const INTERNAL_renderRows = () => {
-    const rows = filteredData;
+    const rows = paginatedData;
     if (!rows || !rows.length) return;
     if (renderRows) return rows.map(renderRows);
     return rows.map((row, index) => (
@@ -265,6 +276,43 @@ const Table = ({
     setsearchTermFilter(value);
   };
 
+  const onChangePerPage = (e) => {
+    const { value } = e.target
+    setPerpage(parseInt(value, 10))
+  }
+
+  const prevPage = () => {
+    if (currentPage === 1) {
+      return
+    }
+    setCurrentPage(currentPage - 1)
+  }
+
+  const nextPage = () => {
+    const maxPage = Math.ceil(filteredData.length / perPage)
+    if (currentPage === maxPage) {
+      return
+    }
+    setCurrentPage(currentPage + 1)
+  }
+
+  const renderPagination = () => {
+    return (
+      <div className="react-table _pagination">
+        <button onClick={prevPage}>prev</button>
+        <span>Current page: {currentPage}</span>
+        <button onClick={nextPage}>next</button>
+
+        <span>Per Page {perPage}</span>
+        <select name="perPage" id="perPage" onChange={onChangePerPage} value={perPage}>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </select>
+      </div>
+    );
+  };
+
   return (
     <>
       {!tableDataLoading ? (
@@ -283,6 +331,7 @@ const Table = ({
             </thead>
             <tbody>{INTERNAL_renderRows()}</tbody>
           </table>
+          {renderPagination()}
         </>
       ) : (
         "...loading"
