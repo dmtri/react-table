@@ -50,7 +50,7 @@ const Table = ({
     const urlState = {};
 
     const { query } = qs.parseUrl(window.location.href);
-    const { perPage, currentPage, searchTermFilter = "", sort } = query;
+    const { perPage, currentPage, searchTermFilter = "", sort, selectedIndexes } = query;
     if (perPage) {
       urlState.perPage = parseInt(perPage, 10);
     }
@@ -68,6 +68,9 @@ const Table = ({
       filter[sortedCol] = state;
     }
     urlState.sort = filter;
+    if (selectedIndexes) {
+      urlState.selectedIndexes = selectedIndexes.split(',').map(idx => parseInt(idx, 10))
+    }
     return urlState;
   };
 
@@ -76,12 +79,13 @@ const Table = ({
     currentPage: currentPageHistory,
     searchTermFilter: searchTermFilterHistory,
     sort: sortHistory,
+    selectedIndexes: selectedIndexesHistory,
   } = getStateFromHistory();
 
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [tableDataLoading, setTableDataLoading] = useState(loading);
-  const [selectedIndexes, setSelectedIndexes] = useState([]);
+  const [selectedIndexes, setSelectedIndexes] = useState(selectedIndexesHistory || []);
   const [total, setTotal] = useState([]);
   const [searchTermFilter, setSearchTermFilter] = useState(
     searchTermFilterHistory || ""
@@ -117,9 +121,10 @@ const Table = ({
   useEffect(() => {
     modifyHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTermFilter, currentPage, perPage, sortFilter]);
-
+  }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
+  
   const modifyHistory = () => {
+    console.log('modifyHistory')
     const { url } = qs.parseUrl(window.location.href);
     const colToSort = Object.keys(sortFilter).find(
       (col) => sortFilter[col] !== SORT_STATE.NONE
@@ -128,12 +133,14 @@ const Table = ({
       perPage,
       currentPage,
       searchTermFilter,
+      selectedIndexes,
     };
     if (colToSort) {
       query.sort = `${colToSort}:${sortFilter[colToSort]}`;
     }
-    const newUrl = qs.stringifyUrl({ url, query });
-    window.history.replaceState(query, "", newUrl);
+    const newUrl = qs.stringifyUrl({ url, query }, { arrayFormat: 'comma' });
+    console.log(query, newUrl)
+    window.history.pushState(query, "", newUrl);
   };
 
   useEffect(() => {
@@ -178,10 +185,6 @@ const Table = ({
   }, [paginatedData]);
 
   useEffect(() => {
-    setSelectedIndexes([]);
-  }, [paginatedData]);
-
-  useEffect(() => {
     // if neither empty nor all checked, set indeterminate = true
     if (!checkboxAllRef.current) return;
     if (selectedIndexes.length && selectedIndexes.length !== total) {
@@ -214,7 +217,6 @@ const Table = ({
       newFilter[col] = SORT_STATE.NONE;
     }
     setSortFilter(newFilter);
-    // modifyHistory()
   };
 
   const renderSort = (col) => {
@@ -322,13 +324,11 @@ const Table = ({
   const onChangesearchTermFilter = (e) => {
     const { value } = e.target;
     setSearchTermFilter(value);
-    // modifyHistory()
   };
 
   const onChangePerPage = (e) => {
     const { value } = e.target;
     setPerpage(parseInt(value, 10));
-    // modifyHistory()
   };
 
   const prevPage = () => {
@@ -336,7 +336,6 @@ const Table = ({
       return;
     }
     setCurrentPage(currentPage - 1);
-    // modifyHistory()
   };
 
   const nextPage = () => {
@@ -345,7 +344,6 @@ const Table = ({
       return;
     }
     setCurrentPage(currentPage + 1);
-    // modifyHistory()
   };
 
   const renderPagination = () => {
