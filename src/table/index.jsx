@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-// TODO: move out of this file
 const ErrorFallback = ({ error }) => {
   return (
     <div role="alert">
@@ -23,24 +22,47 @@ const Table = ({
   emptyCellPlaceholder,
   selectable = true,
   searchColumn,
+  loading = false,
 }) => {
-  const [tableData, setTableData] = useState(dataSource);
+  const [tableData, setTableData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [tableDataLoading, setTableDataLoading] = useState(loading);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [total, setTotal] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const checkboxAllRef = useRef();
 
+  // handle initial dataSource
   useEffect(() => {
-    const filteredData = dataSource.filter((row) => {
+    const getData = async () => {
+      setTableDataLoading(true);
+      const { data } = await dataSource();
+      setTableData(data);
+      setTableDataLoading(false);
+    };
+    if (typeof dataSource === "function") {
+      getData().catch((e) => {
+        throw new Error("Problem fetching table data");
+      });
+    } else if (Array.isArray(dataSource)) {
+      setTableData(dataSource);
+    } else {
+      throw new Error("Invalid table datasource");
+    }
+  }, []);
+
+  useEffect(() => {
+    const filteredData = tableData.filter((row) => {
       // TODO: create accessor helper
       return row[searchColumn].includes(searchTerm);
     });
-    setTableData(filteredData);
-  }, [searchTerm, searchColumn, dataSource]);
+    setFilteredData(filteredData);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
 
   useEffect(() => {
-    setTotal(tableData.length);
-  }, [tableData]);
+    setTotal(filteredData.length);
+  }, [filteredData]);
 
   useEffect(() => {
     setSelectedIndexes([]);
@@ -48,6 +70,7 @@ const Table = ({
 
   useEffect(() => {
     // if neither empty nor all checked, set indeterminate = true
+    if (!checkboxAllRef.current) return
     if (selectedIndexes.length && selectedIndexes.length !== total) {
       checkboxAllRef.current.indeterminate = true;
     } else {
@@ -65,18 +88,21 @@ const Table = ({
 
   const INTERNAL_renderColumns = () => {
     if (renderColumns) return columns.map(renderColumns);
-    return columns.map((col) => <th>{col}</th>);
+    return columns.map((col, index) => <th key={index}>{col}</th>);
   };
 
   const INTERNAL_renderRows = () => {
-    const rows = tableData;
+    const rows = filteredData;
+    if (!rows || !rows.length) return
     if (renderRows) return rows.map(renderRows);
-    return rows.map((row, index) => (
-      <tr>
-        <td>{selectable && INTERNAL_renderCheckbox(index)}</td>
-        {INTERNAL_renderCell(row)}
-      </tr>
-    ));
+    return (
+      rows.map((row, index) => (
+        <tr key={index}>
+          <td>{selectable && INTERNAL_renderCheckbox(index)}</td>
+          {INTERNAL_renderCell(row)}
+        </tr>
+      ))
+    );
   };
 
   const INTERNAL_renderCell = (row) => {
@@ -101,7 +127,7 @@ const Table = ({
       return typeof cell === "object" ? JSON.stringify(cell) : cell;
     });
     if (renderCell) return cells.map(renderCell);
-    return cells.map((cell) => <td>{cell}</td>);
+    return cells.map((cell, index) => <td key={index}>{cell}</td>);
   };
 
   const INTERNAL_renderCheckboxAll = () => {
@@ -150,20 +176,26 @@ const Table = ({
 
   return (
     <>
-      <table>
-        <thead>
+      {!tableDataLoading ? (
+        <>
           <input
             title="Search"
             onChange={onChangeSearchTerm}
             placeholder={`search by ${searchColumn}`}
           />
-          <tr>
-            <th>{selectable && INTERNAL_renderCheckboxAll()}</th>
-            {INTERNAL_renderColumns()}
-          </tr>
-        </thead>
-        <tbody>{INTERNAL_renderRows()}</tbody>
-      </table>
+          <table>
+            <thead>
+              <tr>
+                <th>{selectable && INTERNAL_renderCheckboxAll()}</th>
+                {INTERNAL_renderColumns()}
+              </tr>
+            </thead>
+            <tbody>{INTERNAL_renderRows()}</tbody>
+          </table>
+        </>
+      ) : (
+        "...loading"
+      )}
       <div>
         <p>Selected indexes: {JSON.stringify(selectedIndexes)}</p>
         <p>Total rows: {total}</p>
