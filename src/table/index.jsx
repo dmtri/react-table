@@ -1,5 +1,4 @@
 // TODO: props validation
-import qs from "query-string";
 import { useEffect, useState, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -7,7 +6,7 @@ import Pagination from "./Pagination";
 import Table from "./Table";
 import Search from "./Search";
 import Info from "./Info";
-import { SORT_STATE, getStateFromHistory } from "./common.js";
+import { SORT_STATE, getStateFromHistory, modifyHistory } from "./common.js";
 
 // TODO: move out of this file
 // TODO: add header title/accessor
@@ -55,7 +54,7 @@ const TableContainer = ({
     searchTermFilter: searchTermFilterHistory,
     sort: sortHistory,
     selectedIndexes: selectedIndexesHistory,
-  } = getStateFromHistory(columns);
+  } = getStateFromHistory();
 
   const [total, setTotal] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -96,7 +95,13 @@ const TableContainer = ({
   }, []);
 
   useEffect(() => {
-    modifyHistory();
+    modifyHistory({
+      perPage,
+      currentPage,
+      searchTermFilter,
+      selectedIndexes,
+      sortFilter,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
 
@@ -147,7 +152,6 @@ const TableContainer = ({
   }, [searchTermFilter, sortFilter, tableData]);
 
   useEffect(() => {
-    // if neither empty nor all checked, set indeterminate = true
     if (!checkboxAllRef.current) return;
     if (selectedIndexes.length && selectedIndexes.length !== total) {
       checkboxAllRef.current.indeterminate = true;
@@ -155,24 +159,6 @@ const TableContainer = ({
       checkboxAllRef.current.indeterminate = false;
     }
   }, [selectedIndexes, total]);
-
-  const modifyHistory = () => {
-    const { url } = qs.parseUrl(window.location.href);
-    const colToSort = Object.keys(sortFilter).find(
-      (col) => sortFilter[col] !== SORT_STATE.NONE
-    );
-    const query = {
-      perPage,
-      currentPage,
-      searchTermFilter,
-      selectedIndexes,
-    };
-    if (colToSort) {
-      query.sort = `${colToSort}:${sortFilter[colToSort]}`;
-    }
-    const newUrl = qs.stringifyUrl({ url, query }, { arrayFormat: "comma" });
-    window.history.pushState(query, "", newUrl);
-  };
 
   return (
     <>

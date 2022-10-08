@@ -14,9 +14,8 @@ export function generateAllIndexes(total) {
   return allIndexes;
 }
 
-export const getStateFromHistory = (columns) => {
+export const getStateFromHistory = () => {
   const urlState = {};
-
   const { query } = qs.parseUrl(window.location.href);
   const {
     perPage,
@@ -25,6 +24,7 @@ export const getStateFromHistory = (columns) => {
     sort,
     selectedIndexes,
   } = query;
+
   if (perPage) {
     urlState.perPage = parseInt(perPage, 10);
   }
@@ -34,9 +34,6 @@ export const getStateFromHistory = (columns) => {
   urlState.searchTermFilter = searchTermFilter;
 
   const filter = {};
-  columns.forEach((col) => {
-    filter[col] = SORT_STATE.NONE;
-  });
   if (sort) {
     const [sortedCol, state] = sort.split(":");
     filter[sortedCol] = state;
@@ -48,4 +45,28 @@ export const getStateFromHistory = (columns) => {
       .map((idx) => parseInt(idx, 10));
   }
   return urlState;
+};
+
+export const modifyHistory = ({
+  perPage,
+  currentPage,
+  searchTermFilter,
+  selectedIndexes,
+  sortFilter,
+}) => {
+  const { url } = qs.parseUrl(window.location.href);
+  const colToSort = Object.keys(sortFilter).find(
+    (col) => sortFilter[col] !== SORT_STATE.NONE
+  );
+  const query = {
+    perPage,
+    currentPage,
+    searchTermFilter,
+    selectedIndexes,
+  };
+  if (colToSort) {
+    query.sort = `${colToSort}:${sortFilter[colToSort]}`;
+  }
+  const newUrl = qs.stringifyUrl({ url, query }, { arrayFormat: "comma" });
+  window.history.pushState(query, "", newUrl);
 };
