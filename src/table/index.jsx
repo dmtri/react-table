@@ -1,5 +1,5 @@
 // TODO: props validation
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import qs from "query-string";
 
@@ -368,6 +368,7 @@ const Table = ({
     );
   };
 
+  const selectedRows = paginatedData.filter((_, index) => selectedIndexes.includes(index))
   return (
     <>
       {!tableDataLoading ? (
@@ -393,7 +394,7 @@ const Table = ({
         "...loading"
       )}
       <div>
-        <p>Selected indexes: {JSON.stringify(selectedIndexes)}</p>
+        <pre>Selected: {JSON.stringify(selectedRows, null, 4)}</pre>
         <p>Total rows: {total}</p>
       </div>
     </>
