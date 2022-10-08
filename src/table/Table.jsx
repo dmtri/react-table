@@ -1,5 +1,6 @@
 // TODO: props validation
 
+import { useEffect } from "react";
 import { SORT_STATE, generateAllIndexes } from "./common.js";
 
 const Table = ({
@@ -18,6 +19,7 @@ const Table = ({
   renderColumns,
   sortFilter,
   setSortFilter,
+  onSelectionChange,
 }) => {
   const INTERNAL_renderCheckboxAll = () => {
     if (renderCheckboxAll) return renderCheckboxAll();
@@ -94,6 +96,11 @@ const Table = ({
       }
     }
   };
+
+  useEffect(() => {
+    onSelectionChange && onSelectionChange(selectedIndexes);
+  }, [selectedIndexes, onSelectionChange]);
+
   const renderSort = (col) => {
     let text = "";
     if (sortFilter[col] === SORT_STATE.NONE) {

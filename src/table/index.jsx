@@ -8,7 +8,6 @@ import Search from "./Search";
 import Info from "./Info";
 import { SORT_STATE, getStateFromHistory, modifyHistory } from "./common.js";
 
-// TODO: move out of this file
 // TODO: add header title/accessor
 /*
        columns: [
@@ -105,9 +104,6 @@ const TableContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
 
-  useEffect(() => {
-    onSelectionChange && onSelectionChange(selectedIndexes);
-  }, [selectedIndexes, onSelectionChange]);
 
   useEffect(() => {
     setTotal(paginatedData.length);
@@ -182,6 +178,7 @@ const TableContainer = ({
             renderCheckbox={renderCheckbox}
             columns={columns}
             setSelectedIndexes={setSelectedIndexes}
+            onSelectionChange={onSelectionChange}
             renderColumns={renderColumns}
             sortFilter={sortFilter}
             setSortFilter={setSortFilter}
