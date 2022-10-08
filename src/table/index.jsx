@@ -104,7 +104,6 @@ const TableContainer = ({
       selectedIndexes,
       sortFilter,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
 
   // TODO: create accessor helper
@@ -135,8 +134,7 @@ const TableContainer = ({
       });
     }
     setFilteredData(filteredData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTermFilter, sortFilter, tableData]);
+  }, [searchTermFilter, sortFilter, tableData, searchColumn, sortable]);
 
   useEffect(() => {
     const start = (currentPage - 1) * perPage;
