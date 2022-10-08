@@ -25,8 +25,8 @@ const Table = ({
   useEffect(() => {
     onSelectionChange && onSelectionChange(selectedIndexes);
   }, [selectedIndexes, onSelectionChange]);
-
   useIndeterminateCheckbox(checkboxAllRef, selectedIndexes, data.length);
+
   const INTERNAL_renderRows = () => {
     const rows = data;
     if (!rows || !rows.length) return;
@@ -154,6 +154,7 @@ const Table = ({
   return (
     <table>
       <thead>
+        w
         <tr>
           <th>{selectable && INTERNAL_renderCheckboxAll()}</th>
           {INTERNAL_renderColumns()}

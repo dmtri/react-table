@@ -33,29 +33,26 @@ const Pagination = ({
     setCurrentPage(currentPage + 1);
   };
 
-  const renderPagination = () => {
-    return (
-      <div className="react-table _pagination">
-        <button onClick={prevPage}>prev</button>
-        <span>Current page: {currentPage}</span>
-        <button onClick={nextPage}>next</button>
+  return (
+    <div className="react-table _pagination">
+      <button onClick={prevPage}>prev</button>
+      <span>Current page: {currentPage}</span>
+      <button onClick={nextPage}>next</button>
 
-        <span>Per Page {perPage}</span>
-        <select
-          name="perPage"
-          id="perPage"
-          onChange={onChangePerPage}
-          value={perPage}
-        >
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
-        </select>
-      </div>
-    );
-  };
-
-  return <div>{renderPagination()}</div>;
+      <span>Per Page: {perPage}</span>
+      <span>Total filtered: {total}</span>
+      <select
+        name="perPage"
+        id="perPage"
+        onChange={onChangePerPage}
+        value={perPage}
+      >
+        <option value={25}>25</option>
+        <option value={50}>50</option>
+        <option value={100}>100</option>
+      </select>
+    </div>
+  );
 };
 
 export default Pagination;

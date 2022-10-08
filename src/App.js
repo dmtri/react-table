@@ -1,6 +1,6 @@
 import Table from "./table";
-import data from "./mockData";
-// import axios from 'axios'
+// import data from "./mockData";
+import axios from "axios";
 
 import "./App.css";
 
@@ -8,16 +8,16 @@ function App() {
   return (
     <div className="App">
       <Table
-        dataSource={data.slice(0, 100)}
-        // dataSource={() => {
-        //   return new Promise((resolve) => {
-        //     window.setTimeout(() => {
-        //       resolve(axios.get('https://jsonplaceholder.typicode.com/posts'))
-        //     }, 500)
-        //   })
-        // }}
+        // dataSource={data.slice(0, 100)}
+        dataSource={() => {
+          return new Promise((resolve) => {
+            window.setTimeout(() => {
+              resolve(axios.get("https://jsonplaceholder.typicode.com/posts"));
+            }, 500);
+          });
+        }}
         columns={["userId", "id", "title", "body"]}
-        searchColumn={'body'}
+        searchColumn={"body"}
         // onSearchTermFilterChange={(term) => alert(term)}
         // onCellClick={(cell) => alert(JSON.stringify(cell))}
         // renderCell={(cell) => <td className="test-cell">{cell}</td>}

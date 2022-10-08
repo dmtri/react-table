@@ -7,6 +7,7 @@ import Table from "./Table";
 import Search from "./Search";
 import Info from "./Info";
 import { SORT_STATE, getStateFromHistory, modifyHistory } from "../common.js";
+import { useInitialData } from "../hooks.js";
 
 // TODO: add header title/accessor
 // TODO: add render loader
@@ -52,8 +53,6 @@ const TableContainer = ({
   } = getStateFromHistory();
 
   // general states
-  const [tableData, setTableData] = useState([]);
-  const [tableDataLoading, setTableDataLoading] = useState(loading);
   const [selectedIndexes, setSelectedIndexes] = useState(
     selectedIndexesHistory || []
   );
@@ -69,26 +68,7 @@ const TableContainer = ({
   const [perPage, setPerpage] = useState(perPageHistory || 25);
   const [currentPage, setCurrentPage] = useState(currentPageHistory || 1);
   const [paginatedData, setPaginatedData] = useState([]);
-
-  // handle initial data
-  useEffect(() => {
-    const getData = async () => {
-      setTableDataLoading(true);
-      const { data } = await dataSource();
-      setTableData(data);
-      setTableDataLoading(false);
-    };
-    if (typeof dataSource === "function") {
-      getData().catch((e) => {
-        throw new Error("Problem fetching table data");
-      });
-    } else if (Array.isArray(dataSource)) {
-      setTableData(dataSource);
-    } else {
-      throw new Error("Invalid table datasource");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [tableData, tableDataLoading] = useInitialData(dataSource, loading);
 
   useEffect(() => {
     modifyHistory({
@@ -169,12 +149,11 @@ const TableContainer = ({
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             onPaginationChange={onPaginationChange}
-            total={paginatedData.length}
+            total={filteredData.length}
           />
           <Info
             paginatedData={paginatedData}
             selectedIndexes={selectedIndexes}
-            total={paginatedData.length}
           />
         </>
       ) : (
