@@ -45,12 +45,20 @@ const Table = ({
   sortable = true,
   searchColumn,
   loading = false,
+  onSelectionChange,
+  onPaginationChange,
 }) => {
   const getStateFromHistory = () => {
     const urlState = {};
 
     const { query } = qs.parseUrl(window.location.href);
-    const { perPage, currentPage, searchTermFilter = "", sort, selectedIndexes } = query;
+    const {
+      perPage,
+      currentPage,
+      searchTermFilter = "",
+      sort,
+      selectedIndexes,
+    } = query;
     if (perPage) {
       urlState.perPage = parseInt(perPage, 10);
     }
@@ -69,7 +77,9 @@ const Table = ({
     }
     urlState.sort = filter;
     if (selectedIndexes) {
-      urlState.selectedIndexes = selectedIndexes.split(',').map(idx => parseInt(idx, 10))
+      urlState.selectedIndexes = selectedIndexes
+        .split(",")
+        .map((idx) => parseInt(idx, 10));
     }
     return urlState;
   };
@@ -85,7 +95,9 @@ const Table = ({
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [tableDataLoading, setTableDataLoading] = useState(loading);
-  const [selectedIndexes, setSelectedIndexes] = useState(selectedIndexesHistory || []);
+  const [selectedIndexes, setSelectedIndexes] = useState(
+    selectedIndexesHistory || []
+  );
   const [total, setTotal] = useState([]);
   const [searchTermFilter, setSearchTermFilter] = useState(
     searchTermFilterHistory || ""
@@ -122,9 +134,17 @@ const Table = ({
     modifyHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
-  
+
+  useEffect(() => {
+    onSelectionChange && onSelectionChange(selectedIndexes);
+  }, [selectedIndexes, onSelectionChange]);
+
+  useEffect(() => {
+    onPaginationChange && onPaginationChange(currentPage, perPage);
+  }, [currentPage, perPage, onPaginationChange]);
+
   const modifyHistory = () => {
-    console.log('modifyHistory')
+    console.log("modifyHistory");
     const { url } = qs.parseUrl(window.location.href);
     const colToSort = Object.keys(sortFilter).find(
       (col) => sortFilter[col] !== SORT_STATE.NONE
@@ -138,8 +158,8 @@ const Table = ({
     if (colToSort) {
       query.sort = `${colToSort}:${sortFilter[colToSort]}`;
     }
-    const newUrl = qs.stringifyUrl({ url, query }, { arrayFormat: 'comma' });
-    console.log(query, newUrl)
+    const newUrl = qs.stringifyUrl({ url, query }, { arrayFormat: "comma" });
+    console.log(query, newUrl);
     window.history.pushState(query, "", newUrl);
   };
 
@@ -368,7 +388,9 @@ const Table = ({
     );
   };
 
-  const selectedRows = paginatedData.filter((_, index) => selectedIndexes.includes(index))
+  const selectedRows = paginatedData.filter((_, index) =>
+    selectedIndexes.includes(index)
+  );
   return (
     <>
       {!tableDataLoading ? (
