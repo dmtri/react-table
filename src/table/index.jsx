@@ -1,6 +1,7 @@
 // TODO: props validation
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import qs from "query-string";
 
 // TODO: move out of this file
 // TODO: add header title/accessor
@@ -45,19 +46,53 @@ const Table = ({
   searchColumn,
   loading = false,
 }) => {
+  const getStateFromHistory = () => {
+    const urlState = {};
+
+    const { query } = qs.parseUrl(window.location.href);
+    const { perPage, currentPage, searchTermFilter = "", sort } = query;
+    if (perPage) {
+      urlState.perPage = parseInt(perPage, 10);
+    }
+    if (currentPage) {
+      urlState.currentPage = parseInt(currentPage, 10);
+    }
+    urlState.searchTermFilter = searchTermFilter;
+
+    const filter = {};
+    columns.forEach((col) => {
+      filter[col] = SORT_STATE.NONE;
+    });
+    if (sort) {
+      const [sortedCol, state] = sort.split(":");
+      filter[sortedCol] = state;
+    }
+    urlState.sort = filter;
+    return urlState;
+  };
+
+  const {
+    perPage: perPageHistory,
+    currentPage: currentPageHistory,
+    searchTermFilter: searchTermFilterHistory,
+    sort: sortHistory,
+  } = getStateFromHistory();
+
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [tableDataLoading, setTableDataLoading] = useState(loading);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [total, setTotal] = useState([]);
-  const [searchTermFilter, setsearchTermFilter] = useState("");
-  const [sortFilter, setSortFilter] = useState("");
+  const [searchTermFilter, setSearchTermFilter] = useState(
+    searchTermFilterHistory || ""
+  );
+  const [sortFilter, setSortFilter] = useState(sortHistory || {});
   const checkboxAllRef = useRef();
 
   // ------Pagination-----
   const [paginatedData, setPaginatedData] = useState([]);
-  const [perPage, setPerpage] = useState(25);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerpage] = useState(perPageHistory || 25);
+  const [currentPage, setCurrentPage] = useState(currentPageHistory || 1);
 
   // handle initial dataSource
   useEffect(() => {
@@ -79,14 +114,27 @@ const Table = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // handle initial filter
   useEffect(() => {
-    const filter = {};
-    columns.forEach((col) => {
-      filter[col] = "";
-    });
-    setSortFilter(filter);
-  }, []);
+    modifyHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTermFilter, currentPage, perPage, sortFilter]);
+
+  const modifyHistory = () => {
+    const { url } = qs.parseUrl(window.location.href);
+    const colToSort = Object.keys(sortFilter).find(
+      (col) => sortFilter[col] !== SORT_STATE.NONE
+    );
+    const query = {
+      perPage,
+      currentPage,
+      searchTermFilter,
+    };
+    if (colToSort) {
+      query.sort = `${colToSort}:${sortFilter[colToSort]}`;
+    }
+    const newUrl = qs.stringifyUrl({ url, query });
+    window.history.replaceState(query, "", newUrl);
+  };
 
   useEffect(() => {
     const filteredData = tableData.filter((row) => {
@@ -121,8 +169,7 @@ const Table = ({
   }, [searchTermFilter, sortFilter, tableData]);
 
   useEffect(() => {
-    const start = (currentPage - 1) * perPage
-    console.log({ start, end: start + perPage})
+    const start = (currentPage - 1) * perPage;
     setPaginatedData(filteredData.slice(start, start + perPage));
   }, [filteredData, perPage, currentPage]);
 
@@ -167,6 +214,7 @@ const Table = ({
       newFilter[col] = SORT_STATE.NONE;
     }
     setSortFilter(newFilter);
+    // modifyHistory()
   };
 
   const renderSort = (col) => {
@@ -273,28 +321,32 @@ const Table = ({
 
   const onChangesearchTermFilter = (e) => {
     const { value } = e.target;
-    setsearchTermFilter(value);
+    setSearchTermFilter(value);
+    // modifyHistory()
   };
 
   const onChangePerPage = (e) => {
-    const { value } = e.target
-    setPerpage(parseInt(value, 10))
-  }
+    const { value } = e.target;
+    setPerpage(parseInt(value, 10));
+    // modifyHistory()
+  };
 
   const prevPage = () => {
-    if (currentPage === 1) {
-      return
+    if (currentPage <= 1) {
+      return;
     }
-    setCurrentPage(currentPage - 1)
-  }
+    setCurrentPage(currentPage - 1);
+    // modifyHistory()
+  };
 
   const nextPage = () => {
-    const maxPage = Math.ceil(filteredData.length / perPage)
-    if (currentPage === maxPage) {
-      return
+    const maxPage = Math.ceil(filteredData.length / perPage);
+    if (currentPage >= maxPage) {
+      return;
     }
-    setCurrentPage(currentPage + 1)
-  }
+    setCurrentPage(currentPage + 1);
+    // modifyHistory()
+  };
 
   const renderPagination = () => {
     return (
@@ -304,7 +356,12 @@ const Table = ({
         <button onClick={nextPage}>next</button>
 
         <span>Per Page {perPage}</span>
-        <select name="perPage" id="perPage" onChange={onChangePerPage} value={perPage}>
+        <select
+          name="perPage"
+          id="perPage"
+          onChange={onChangePerPage}
+          value={perPage}
+        >
           <option value={25}>25</option>
           <option value={50}>50</option>
           <option value={100}>100</option>
@@ -319,6 +376,7 @@ const Table = ({
         <>
           <input
             title="Search"
+            value={searchTermFilter}
             onChange={onChangesearchTermFilter}
             placeholder={`search by ${searchColumn}`}
           />
