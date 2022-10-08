@@ -19,6 +19,7 @@ function App() {
         columns={["userId", "id", "title", "body"]}
         searchColumn={'body'}
         // onSearchTermFilterChange={(term) => alert(term)}
+        // onCellClick={(cell) => alert(JSON.stringify(cell))}
         // renderCell={(cell) => <td className="test-cell">{cell}</td>}
         // renderRow={(row) => <tr className="test-row">{JSON.stringify(row)}</tr>}
         // renderCheckbox={() => <span>check box</span>}

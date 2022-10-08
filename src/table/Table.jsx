@@ -18,6 +18,7 @@ const Table = ({
   renderColumns,
   sortFilter,
   setSortFilter,
+  onCellClick,
 }) => {
   const checkboxAllRef = useRef();
   useEffect(() => {
@@ -26,10 +27,7 @@ const Table = ({
 
   useEffect(() => {
     if (!checkboxAllRef.current) return;
-    if (
-      selectedIndexes.length &&
-      selectedIndexes.length !== data.length
-    ) {
+    if (selectedIndexes.length && selectedIndexes.length !== data.length) {
       checkboxAllRef.current.indeterminate = true;
     } else {
       checkboxAllRef.current.indeterminate = false;
@@ -84,7 +82,11 @@ const Table = ({
       return typeof cell === "object" ? JSON.stringify(cell) : cell;
     });
     if (renderCell) return cells.map(renderCell);
-    return cells.map((cell, index) => <td key={index}>{cell}</td>);
+    return cells.map((cell, index) => (
+      <td key={index} onClick={() => onCellClick(cell, index)}>
+        {cell}
+      </td>
+    ));
   };
 
   const INTERNAL_renderCheckboxAll = () => {
@@ -94,8 +96,7 @@ const Table = ({
         ref={checkboxAllRef}
         type="checkbox"
         checked={
-          selectedIndexes.length &&
-          selectedIndexes.length === data.length
+          selectedIndexes.length && selectedIndexes.length === data.length
         }
         onChange={(e) => handleChangeCheckbox(e.target.checked, "all")}
       />

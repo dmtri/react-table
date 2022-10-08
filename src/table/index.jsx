@@ -9,6 +9,8 @@ import Info from "./Info";
 import { SORT_STATE, getStateFromHistory, modifyHistory } from "../common.js";
 
 // TODO: add header title/accessor
+// TODO: add render loader
+// TODO: add render sort
 /*
        columns: [
             { title: 'ID', field: 'ID' , type: 'numeric' },
@@ -21,15 +23,6 @@ import { SORT_STATE, getStateFromHistory, modifyHistory } from "../common.js";
 */
 // override components: https://material-table.com/#/docs/features/component-overriding
 // TODO: allow callbacks for key events (onCellClick, onSearch, onPaginationChange, onSort): https://material-table.com/#/docs/features/selection
-
-const ErrorFallback = ({ error }) => {
-  return (
-    <div role="alert">
-      <p>Something went wrong with Table component:</p>
-      <pre>{error.message}</pre>
-    </div>
-  );
-};
 
 const TableContainer = ({
   dataSource,
@@ -48,6 +41,7 @@ const TableContainer = ({
   loading = false,
   onSelectionChange,
   onPaginationChange,
+  onCellClick,
 }) => {
   const {
     perPage: perPageHistory,
@@ -167,6 +161,7 @@ const TableContainer = ({
             renderColumns={renderColumns}
             sortFilter={sortFilter}
             setSortFilter={setSortFilter}
+            onCellClick={onCellClick}
           />
           <Pagination
             perPage={perPage}
@@ -186,6 +181,15 @@ const TableContainer = ({
         "...loading"
       )}
     </>
+  );
+};
+
+const ErrorFallback = ({ error }) => {
+  return (
+    <div role="alert">
+      <p>Something went wrong with Table component:</p>
+      <pre>{error.message}</pre>
+    </div>
   );
 };
 
