@@ -76,7 +76,7 @@ const Table = ({
     });
     if (renderCell) return cells.map(renderCell);
     return cells.map((cell, index) => (
-      <td key={index} onClick={() => onCellClick(cell, index)}>
+      <td key={index} onClick={() => onCellClick && onCellClick(cell, index)}>
         {cell}
       </td>
     ));

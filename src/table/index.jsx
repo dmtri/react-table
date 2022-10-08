@@ -61,7 +61,11 @@ const TableContainer = ({
   const [searchTermFilter, setSearchTermFilter] = useState(
     searchTermFilterHistory || ""
   );
-  const [sortFilter, setSortFilter] = useState(sortHistory || {});
+  const defaultSortFilter = {}
+  columns.forEach((col) => {
+    defaultSortFilter[col] = SORT_STATE.NONE;
+  });
+  const [sortFilter, setSortFilter] = useState(sortHistory || defaultSortFilter);
   const [filteredData, setFilteredData] = useState([]);
 
   // pagination states

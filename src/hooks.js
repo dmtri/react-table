@@ -20,8 +20,7 @@ export const useInitialData = (dataSource, loading) => {
     } else {
       throw new Error("Invalid table datasource");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dataSource]);
 
   return [tableData, tableDataLoading];
 };

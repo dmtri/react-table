@@ -33,12 +33,12 @@ export const getStateFromHistory = () => {
   }
   urlState.searchTermFilter = searchTermFilter;
 
-  const filter = {};
   if (sort) {
+    const filter = {};
     const [sortedCol, state] = sort.split(":");
     filter[sortedCol] = state;
+    urlState.sort = filter;
   }
-  urlState.sort = filter;
   if (selectedIndexes) {
     urlState.selectedIndexes = selectedIndexes
       .split(",")
