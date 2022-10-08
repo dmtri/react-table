@@ -1,5 +1,5 @@
 // TODO: props validation
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import Pagination from "./Pagination";
@@ -55,25 +55,26 @@ const TableContainer = ({
     selectedIndexes: selectedIndexesHistory,
   } = getStateFromHistory();
 
-  const [total, setTotal] = useState([]);
+  // general states
   const [tableData, setTableData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [tableDataLoading, setTableDataLoading] = useState(loading);
   const [selectedIndexes, setSelectedIndexes] = useState(
     selectedIndexesHistory || []
   );
-  const [paginatedData, setPaginatedData] = useState([]);
+
+  // filter states
   const [searchTermFilter, setSearchTermFilter] = useState(
     searchTermFilterHistory || ""
   );
   const [sortFilter, setSortFilter] = useState(sortHistory || {});
-  const checkboxAllRef = useRef();
+  const [filteredData, setFilteredData] = useState([]);
 
-  // ------Pagination-----
+  // pagination states
   const [perPage, setPerpage] = useState(perPageHistory || 25);
   const [currentPage, setCurrentPage] = useState(currentPageHistory || 1);
+  const [paginatedData, setPaginatedData] = useState([]);
 
-  // handle initial dataSource
+  // handle initial data
   useEffect(() => {
     const getData = async () => {
       setTableDataLoading(true);
@@ -104,18 +105,11 @@ const TableContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
 
-
-  useEffect(() => {
-    setTotal(paginatedData.length);
-  }, [paginatedData]);
-
-  // paginate data
   useEffect(() => {
     const start = (currentPage - 1) * perPage;
     setPaginatedData(filteredData.slice(start, start + perPage));
   }, [filteredData, perPage, currentPage, setPaginatedData]);
 
-  // filter data
   // TODO: create accessor helper
   useEffect(() => {
     const filteredData = tableData.filter((row) => {
@@ -147,15 +141,6 @@ const TableContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, sortFilter, tableData]);
 
-  useEffect(() => {
-    if (!checkboxAllRef.current) return;
-    if (selectedIndexes.length && selectedIndexes.length !== total) {
-      checkboxAllRef.current.indeterminate = true;
-    } else {
-      checkboxAllRef.current.indeterminate = false;
-    }
-  }, [selectedIndexes, total]);
-
   return (
     <>
       {!tableDataLoading ? (
@@ -167,18 +152,16 @@ const TableContainer = ({
           />
           <Table
             selectable={selectable}
-            renderCheckboxAll={renderCheckboxAll}
-            checkboxAllRef={checkboxAllRef}
             selectedIndexes={selectedIndexes}
-            total={total}
-            emptyCellPlaceholder={emptyCellPlaceholder}
-            paginatedData={paginatedData}
-            renderRows={renderRows}
-            renderCell={renderCell}
-            renderCheckbox={renderCheckbox}
-            columns={columns}
             setSelectedIndexes={setSelectedIndexes}
             onSelectionChange={onSelectionChange}
+            renderCheckboxAll={renderCheckboxAll}
+            renderCheckbox={renderCheckbox}
+            emptyCellPlaceholder={emptyCellPlaceholder}
+            data={paginatedData}
+            columns={columns}
+            renderRows={renderRows}
+            renderCell={renderCell}
             renderColumns={renderColumns}
             sortFilter={sortFilter}
             setSortFilter={setSortFilter}
@@ -189,8 +172,7 @@ const TableContainer = ({
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             onPaginationChange={onPaginationChange}
-            totalRows={filteredData}
-            setPaginatedData={setPaginatedData}
+            totalRows={paginatedData.length}
           />
         </>
       ) : (
@@ -199,7 +181,7 @@ const TableContainer = ({
       <Info
         paginatedData={paginatedData}
         selectedIndexes={selectedIndexes}
-        total={total}
+        total={paginatedData.length}
       />
     </>
   );

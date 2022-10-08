@@ -26,7 +26,7 @@ const Pagination = ({
   };
 
   const nextPage = () => {
-    const maxPage = Math.ceil(totalRows.length / perPage);
+    const maxPage = Math.ceil(totalRows / perPage);
     if (currentPage >= maxPage) {
       return;
     }

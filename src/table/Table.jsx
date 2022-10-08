@@ -1,16 +1,14 @@
 // TODO: props validation
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { SORT_STATE, generateAllIndexes } from "./common.js";
 
 const Table = ({
   selectable,
   renderCheckboxAll,
-  checkboxAllRef,
   selectedIndexes,
-  total,
   emptyCellPlaceholder,
-  paginatedData,
+  data,
   renderRows,
   renderCell,
   renderCheckbox,
@@ -21,20 +19,25 @@ const Table = ({
   setSortFilter,
   onSelectionChange,
 }) => {
+  const checkboxAllRef = useRef();
+
   const INTERNAL_renderCheckboxAll = () => {
     if (renderCheckboxAll) return renderCheckboxAll();
     return (
       <input
         ref={checkboxAllRef}
         type="checkbox"
-        checked={selectedIndexes.length && selectedIndexes.length === total}
+        checked={
+          selectedIndexes.length &&
+          selectedIndexes.length === data.length
+        }
         onChange={(e) => handleChangeCheckbox(e.target.checked, "all")}
       />
     );
   };
 
   const INTERNAL_renderRows = () => {
-    const rows = paginatedData;
+    const rows = data;
     if (!rows || !rows.length) return;
     if (renderRows) return rows.map(renderRows);
     return rows.map((row, index) => (
@@ -84,7 +87,7 @@ const Table = ({
   const handleChangeCheckbox = (checked, index) => {
     if (index === "all") {
       if (checked) {
-        setSelectedIndexes(generateAllIndexes(total));
+        setSelectedIndexes(generateAllIndexes(data.length));
       } else {
         setSelectedIndexes([]);
       }
@@ -100,6 +103,18 @@ const Table = ({
   useEffect(() => {
     onSelectionChange && onSelectionChange(selectedIndexes);
   }, [selectedIndexes, onSelectionChange]);
+
+  useEffect(() => {
+    if (!checkboxAllRef.current) return;
+    if (
+      selectedIndexes.length &&
+      selectedIndexes.length !== data.length
+    ) {
+      checkboxAllRef.current.indeterminate = true;
+    } else {
+      checkboxAllRef.current.indeterminate = false;
+    }
+  }, [selectedIndexes, data.length]);
 
   const renderSort = (col) => {
     let text = "";
