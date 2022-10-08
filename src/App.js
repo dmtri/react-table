@@ -3,11 +3,14 @@ import data from "./table/mockData";
 
 import "./App.css";
 
-console.log({data})
+console.log({ data });
 function App() {
   return (
     <div className="App">
-      <Table dataSource={data} columns={["userId.test.a", "id", "title", "body"]} />
+      <Table
+        dataSource={data.slice(0, 5)}
+        columns={["userId.test.a", "id", "title", "body"]}
+      />
     </div>
   );
 }
