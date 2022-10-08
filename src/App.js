@@ -8,8 +8,9 @@ function App() {
   return (
     <div className="App">
       <Table
-        dataSource={data.slice(0, 5)}
-        columns={["userId.test.a", "id", "title", "body"]}
+        dataSource={data.slice(0, 100)}
+        columns={["userId", "id", "title", "body"]}
+        searchColumn={'title'}
       />
     </div>
   );

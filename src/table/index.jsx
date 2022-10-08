@@ -22,14 +22,29 @@ const Table = ({
   renderCheckbox,
   emptyCellPlaceholder,
   selectable = true,
+  searchColumn,
 }) => {
+  const [tableData, setTableData] = useState(dataSource);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [total, setTotal] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const checkboxAllRef = useRef();
 
   useEffect(() => {
-    setTotal(dataSource.length);
-  }, [dataSource]);
+    const filteredData = dataSource.filter((row) => {
+      // TODO: create accessor helper
+      return row[searchColumn].includes(searchTerm);
+    });
+    setTableData(filteredData);
+  }, [searchTerm, searchColumn, dataSource]);
+
+  useEffect(() => {
+    setTotal(tableData.length);
+  }, [tableData]);
+
+  useEffect(() => {
+    setSelectedIndexes([]);
+  }, [tableData, searchTerm]);
 
   useEffect(() => {
     // if neither empty nor all checked, set indeterminate = true
@@ -54,7 +69,7 @@ const Table = ({
   };
 
   const INTERNAL_renderRows = () => {
-    const rows = dataSource;
+    const rows = tableData;
     if (renderRows) return rows.map(renderRows);
     return rows.map((row, index) => (
       <tr>
@@ -95,7 +110,7 @@ const Table = ({
       <input
         ref={checkboxAllRef}
         type="checkbox"
-        checked={selectedIndexes.length === total}
+        checked={selectedIndexes.length && selectedIndexes.length === total}
         onChange={(e) => handleChangeCheckbox(e.target.checked, "all")}
       />
     );
@@ -128,22 +143,32 @@ const Table = ({
     }
   };
 
+  const onChangeSearchTerm = (e) => {
+    const { value } = e.target;
+    setSearchTerm(value);
+  };
+
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>{selectable && INTERNAL_renderCheckboxAll()}</th>
-          {INTERNAL_renderColumns()}
-        </tr>
-      </thead>
-      <tbody>{INTERNAL_renderRows()}</tbody>
-      <tfoot>
-        <tr>
-          <td>Selected: {JSON.stringify(selectedIndexes)}</td>
-          <td>Total: {total}</td>
-        </tr>
-      </tfoot>
-    </table>
+    <>
+      <table>
+        <thead>
+          <input
+            title="Search"
+            onChange={onChangeSearchTerm}
+            placeholder={`search by ${searchColumn}`}
+          />
+          <tr>
+            <th>{selectable && INTERNAL_renderCheckboxAll()}</th>
+            {INTERNAL_renderColumns()}
+          </tr>
+        </thead>
+        <tbody>{INTERNAL_renderRows()}</tbody>
+      </table>
+      <div>
+        <p>Selected indexes: {JSON.stringify(selectedIndexes)}</p>
+        <p>Total rows: {total}</p>
+      </div>
+    </>
   );
 };
 
