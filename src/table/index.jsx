@@ -6,7 +6,7 @@ import Pagination from "./Pagination";
 import Table from "./Table";
 import Search from "./Search";
 import Info from "./Info";
-import { SORT_STATE, getStateFromHistory, modifyHistory } from "./common.js";
+import { SORT_STATE, getStateFromHistory, modifyHistory } from "../common.js";
 
 // TODO: add header title/accessor
 /*
@@ -35,14 +35,16 @@ const TableContainer = ({
   dataSource,
   columns,
   renderColumns,
-  renderRows,
+  renderRow,
   renderCell,
-  renderCheckboxAll,
   renderCheckbox,
+  renderCheckboxAll,
+  renderSearch,
   emptyCellPlaceholder,
   selectable = true,
   sortable = true,
   searchColumn,
+  onSearchTermFilterChange,
   loading = false,
   onSelectionChange,
   onPaginationChange,
@@ -105,11 +107,6 @@ const TableContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
 
-  useEffect(() => {
-    const start = (currentPage - 1) * perPage;
-    setPaginatedData(filteredData.slice(start, start + perPage));
-  }, [filteredData, perPage, currentPage, setPaginatedData]);
-
   // TODO: create accessor helper
   useEffect(() => {
     const filteredData = tableData.filter((row) => {
@@ -141,6 +138,11 @@ const TableContainer = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTermFilter, sortFilter, tableData]);
 
+  useEffect(() => {
+    const start = (currentPage - 1) * perPage;
+    setPaginatedData(filteredData.slice(start, start + perPage));
+  }, [filteredData, perPage, currentPage, setPaginatedData]);
+
   return (
     <>
       {!tableDataLoading ? (
@@ -149,6 +151,8 @@ const TableContainer = ({
             searchTermFilter={searchTermFilter}
             setSearchTermFilter={setSearchTermFilter}
             searchColumn={searchColumn}
+            renderSearch={renderSearch}
+            onSearchTermFilterChange={onSearchTermFilterChange}
           />
           <Table
             selectable={selectable}
@@ -160,7 +164,7 @@ const TableContainer = ({
             emptyCellPlaceholder={emptyCellPlaceholder}
             data={paginatedData}
             columns={columns}
-            renderRows={renderRows}
+            renderRow={renderRow}
             renderCell={renderCell}
             renderColumns={renderColumns}
             sortFilter={sortFilter}
@@ -172,17 +176,17 @@ const TableContainer = ({
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             onPaginationChange={onPaginationChange}
-            totalRows={paginatedData.length}
+            total={paginatedData.length}
+          />
+          <Info
+            paginatedData={paginatedData}
+            selectedIndexes={selectedIndexes}
+            total={paginatedData.length}
           />
         </>
       ) : (
         "...loading"
       )}
-      <Info
-        paginatedData={paginatedData}
-        selectedIndexes={selectedIndexes}
-        total={paginatedData.length}
-      />
     </>
   );
 };

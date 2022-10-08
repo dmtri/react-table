@@ -1,50 +1,64 @@
 // TODO: props validation
 
 import { useEffect, useRef } from "react";
-import { SORT_STATE, generateAllIndexes } from "./common.js";
+import { SORT_STATE, generateAllIndexes } from "../common.js";
 
 const Table = ({
   selectable,
-  renderCheckboxAll,
   selectedIndexes,
+  setSelectedIndexes,
+  onSelectionChange,
   emptyCellPlaceholder,
   data,
-  renderRows,
+  columns,
+  renderRow,
   renderCell,
   renderCheckbox,
-  columns,
-  setSelectedIndexes,
+  renderCheckboxAll,
   renderColumns,
   sortFilter,
   setSortFilter,
-  onSelectionChange,
 }) => {
   const checkboxAllRef = useRef();
+  useEffect(() => {
+    onSelectionChange && onSelectionChange(selectedIndexes);
+  }, [selectedIndexes, onSelectionChange]);
 
-  const INTERNAL_renderCheckboxAll = () => {
-    if (renderCheckboxAll) return renderCheckboxAll();
-    return (
-      <input
-        ref={checkboxAllRef}
-        type="checkbox"
-        checked={
-          selectedIndexes.length &&
-          selectedIndexes.length === data.length
-        }
-        onChange={(e) => handleChangeCheckbox(e.target.checked, "all")}
-      />
-    );
-  };
+  useEffect(() => {
+    if (!checkboxAllRef.current) return;
+    if (
+      selectedIndexes.length &&
+      selectedIndexes.length !== data.length
+    ) {
+      checkboxAllRef.current.indeterminate = true;
+    } else {
+      checkboxAllRef.current.indeterminate = false;
+    }
+  }, [selectedIndexes, data.length]);
 
   const INTERNAL_renderRows = () => {
     const rows = data;
     if (!rows || !rows.length) return;
-    if (renderRows) return rows.map(renderRows);
+    if (renderRow) return rows.map(renderRow);
     return rows.map((row, index) => (
       <tr key={index}>
         <td>{selectable && INTERNAL_renderCheckbox(index)}</td>
         {INTERNAL_renderCell(row)}
       </tr>
+    ));
+  };
+
+  const INTERNAL_renderColumns = () => {
+    if (renderColumns) return columns.map(renderColumns);
+    return columns.map((col, index) => (
+      <th
+        key={index}
+        className="react-table _col-heading"
+        onClick={() => sortColumn(col)}
+      >
+        <span> {renderSort(col)} </span>
+        {col}
+      </th>
     ));
   };
 
@@ -71,6 +85,21 @@ const Table = ({
     });
     if (renderCell) return cells.map(renderCell);
     return cells.map((cell, index) => <td key={index}>{cell}</td>);
+  };
+
+  const INTERNAL_renderCheckboxAll = () => {
+    if (renderCheckboxAll) return renderCheckboxAll();
+    return (
+      <input
+        ref={checkboxAllRef}
+        type="checkbox"
+        checked={
+          selectedIndexes.length &&
+          selectedIndexes.length === data.length
+        }
+        onChange={(e) => handleChangeCheckbox(e.target.checked, "all")}
+      />
+    );
   };
 
   const INTERNAL_renderCheckbox = (index) => {
@@ -100,22 +129,6 @@ const Table = ({
     }
   };
 
-  useEffect(() => {
-    onSelectionChange && onSelectionChange(selectedIndexes);
-  }, [selectedIndexes, onSelectionChange]);
-
-  useEffect(() => {
-    if (!checkboxAllRef.current) return;
-    if (
-      selectedIndexes.length &&
-      selectedIndexes.length !== data.length
-    ) {
-      checkboxAllRef.current.indeterminate = true;
-    } else {
-      checkboxAllRef.current.indeterminate = false;
-    }
-  }, [selectedIndexes, data.length]);
-
   const renderSort = (col) => {
     let text = "";
     if (sortFilter[col] === SORT_STATE.NONE) {
@@ -128,21 +141,6 @@ const Table = ({
     return text;
   };
 
-  const INTERNAL_renderColumns = () => {
-    if (renderColumns) return columns.map(renderColumns);
-    return columns.map((col, index) => (
-      <th
-        key={index}
-        className="react-table _col-heading"
-        onClick={() => sortColumn(col)}
-      >
-        <span> {renderSort(col)} </span>
-        {col}
-      </th>
-    ));
-  };
-
-  // TODO: custom sort function
   const sortColumn = (col) => {
     // only support single column sort for now
     const newFilter = { ...sortFilter };

@@ -7,7 +7,7 @@ const Pagination = ({
   currentPage,
   setPerpage,
   setCurrentPage,
-  totalRows,
+  total,
 }) => {
   useEffect(() => {
     onPaginationChange && onPaginationChange(currentPage, perPage);
@@ -26,7 +26,7 @@ const Pagination = ({
   };
 
   const nextPage = () => {
-    const maxPage = Math.ceil(totalRows / perPage);
+    const maxPage = Math.ceil(total / perPage);
     if (currentPage >= maxPage) {
       return;
     }
