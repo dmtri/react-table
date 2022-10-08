@@ -8,17 +8,16 @@ function App() {
   return (
     <div className="App">
       <Table
-        // dataSource={data.slice(0, 100)}
-        dataSource={() => {
-          return new Promise((resolve) => {
-            window.setTimeout(() => {
-              resolve(axios.get('https://jsonplaceholder.typicode.com/posts'))
-            }, 500)
-          })
-        }}
+        dataSource={data.slice(0, 100)}
+        // dataSource={() => {
+        //   return new Promise((resolve) => {
+        //     window.setTimeout(() => {
+        //       resolve(axios.get('https://jsonplaceholder.typicode.com/posts'))
+        //     }, 500)
+        //   })
+        // }}
         columns={["userId", "id", "title", "body"]}
         searchColumn={'title'}
-        loading={true}
       />
     </div>
   );

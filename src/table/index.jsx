@@ -2,6 +2,20 @@
 import { useEffect, useState, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
+// TODO: move out of this file
+// TODO: add header title/accessor
+/*
+       columns: [
+            { title: 'ID', field: 'ID' , type: 'numeric' },
+            { title: 'uitdeler', field: 'Uitdeler' },
+            { title: 'ontvanger', field: 'Ontvanger' },
+            { title: 'Uitgedeeld', field: 'Uitgedeeld', lookup: { 1: true, 0: false },},
+            { title: 'datum', field: 'Datum',
+            },
+        ],
+*/
+
+
 const ErrorFallback = ({ error }) => {
   return (
     <div role="alert">
@@ -9,6 +23,13 @@ const ErrorFallback = ({ error }) => {
       <pre>{error.message}</pre>
     </div>
   );
+};
+
+// TODO: move to SORT
+const SORT_STATE = {
+  ASC: "asc",
+  DESC: "desc",
+  NONE: "",
 };
 
 const Table = ({
@@ -21,6 +42,7 @@ const Table = ({
   renderCheckbox,
   emptyCellPlaceholder,
   selectable = true,
+  sortable = true,
   searchColumn,
   loading = false,
 }) => {
@@ -29,7 +51,8 @@ const Table = ({
   const [tableDataLoading, setTableDataLoading] = useState(loading);
   const [selectedIndexes, setSelectedIndexes] = useState([]);
   const [total, setTotal] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermFilter, setsearchTermFilter] = useState("");
+  const [sortFilter, setSortFilter] = useState("");
   const checkboxAllRef = useRef();
 
   // handle initial dataSource
@@ -49,16 +72,48 @@ const Table = ({
     } else {
       throw new Error("Invalid table datasource");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // // handle initial filter
+  useEffect(() => {
+    const filter = {};
+    columns.forEach((col) => {
+      filter[col] = "";
+    });
+    setSortFilter(filter);
   }, []);
 
   useEffect(() => {
     const filteredData = tableData.filter((row) => {
       // TODO: create accessor helper
-      return row[searchColumn].includes(searchTerm);
+      return row[searchColumn].includes(searchTermFilter);
     });
+    const colToSort = Object.keys(sortFilter).find(
+      (col) => sortFilter[col] !== SORT_STATE.NONE
+    );
+    if (colToSort) {
+      filteredData.sort((a, b) => {
+        if (typeof a[colToSort] === 'number') {
+          if (sortFilter[colToSort] === SORT_STATE.ASC) {
+            return a[colToSort] - b[colToSort]
+          } else {
+            return b[colToSort] - a[colToSort]
+          }
+        } else if (typeof a[colToSort] === 'string') {
+          if (sortFilter[colToSort] === SORT_STATE.ASC) {
+            return a[colToSort].localeCompare(b[colToSort])
+          } else {
+            return b[colToSort].localeCompare(a[colToSort])
+          }
+        } else {
+          throw new Error('data type not supported for sorting')
+        }
+      });
+    }
     setFilteredData(filteredData);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTermFilter, sortFilter, tableData]);
 
   useEffect(() => {
     setTotal(filteredData.length);
@@ -66,11 +121,11 @@ const Table = ({
 
   useEffect(() => {
     setSelectedIndexes([]);
-  }, [tableData, searchTerm]);
+  }, [tableData, searchTermFilter]);
 
   useEffect(() => {
     // if neither empty nor all checked, set indeterminate = true
-    if (!checkboxAllRef.current) return
+    if (!checkboxAllRef.current) return;
     if (selectedIndexes.length && selectedIndexes.length !== total) {
       checkboxAllRef.current.indeterminate = true;
     } else {
@@ -86,23 +141,59 @@ const Table = ({
     return allIndexes;
   };
 
+  // TODO: custom sort function
+  const sortColumn = (col) => {
+    // only support single column sort for now
+    const newFilter = { ...sortFilter };
+    columns.forEach((col) => {
+      newFilter[col] = SORT_STATE.NONE;
+    });
+    if (sortFilter[col] === SORT_STATE.NONE) {
+      newFilter[col] = SORT_STATE.ASC;
+    } else if (sortFilter[col] === SORT_STATE.ASC) {
+      newFilter[col] = SORT_STATE.DESC;
+    } else if (sortFilter[col] === SORT_STATE.DESC) {
+      newFilter[col] = SORT_STATE.NONE;
+    }
+    setSortFilter(newFilter);
+  };
+
+  const renderSort = (col) => {
+    let text = "";
+    if (sortFilter[col] === SORT_STATE.NONE) {
+      text = "";
+    } else if (sortFilter[col] === SORT_STATE.ASC) {
+      text = "asc";
+    } else if (sortFilter[col] === SORT_STATE.DESC) {
+      text = "desc";
+    }
+    return text;
+  };
+
   const INTERNAL_renderColumns = () => {
     if (renderColumns) return columns.map(renderColumns);
-    return columns.map((col, index) => <th key={index}>{col}</th>);
+    return columns.map((col, index) => (
+      <th
+        key={index}
+        className="react-table _col-heading"
+        onClick={() => sortColumn(col)}
+      >
+        <span> {renderSort(col)} </span>
+        {col}
+      </th>
+    ));
   };
 
   const INTERNAL_renderRows = () => {
     const rows = filteredData;
-    if (!rows || !rows.length) return
+    if (!rows || !rows.length) return;
     if (renderRows) return rows.map(renderRows);
-    return (
-      rows.map((row, index) => (
-        <tr key={index}>
-          <td>{selectable && INTERNAL_renderCheckbox(index)}</td>
-          {INTERNAL_renderCell(row)}
-        </tr>
-      ))
-    );
+    return rows.map((row, index) => (
+      <tr key={index}>
+        <td>{selectable && INTERNAL_renderCheckbox(index)}</td>
+        {INTERNAL_renderCell(row)}
+      </tr>
+    ));
   };
 
   const INTERNAL_renderCell = (row) => {
@@ -169,9 +260,9 @@ const Table = ({
     }
   };
 
-  const onChangeSearchTerm = (e) => {
+  const onChangesearchTermFilter = (e) => {
     const { value } = e.target;
-    setSearchTerm(value);
+    setsearchTermFilter(value);
   };
 
   return (
@@ -180,7 +271,7 @@ const Table = ({
         <>
           <input
             title="Search"
-            onChange={onChangeSearchTerm}
+            onChange={onChangesearchTermFilter}
             placeholder={`search by ${searchColumn}`}
           />
           <table>
