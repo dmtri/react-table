@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { SORT_STATE, generateAllIndexes } from "../common.js";
+import { useIndeterminateCheckbox } from "../hooks.js";
 
 const Table = ({
   selectable,
@@ -25,15 +26,7 @@ const Table = ({
     onSelectionChange && onSelectionChange(selectedIndexes);
   }, [selectedIndexes, onSelectionChange]);
 
-  useEffect(() => {
-    if (!checkboxAllRef.current) return;
-    if (selectedIndexes.length && selectedIndexes.length !== data.length) {
-      checkboxAllRef.current.indeterminate = true;
-    } else {
-      checkboxAllRef.current.indeterminate = false;
-    }
-  }, [selectedIndexes, data.length]);
-
+  useIndeterminateCheckbox(checkboxAllRef, selectedIndexes, data.length);
   const INTERNAL_renderRows = () => {
     const rows = data;
     if (!rows || !rows.length) return;

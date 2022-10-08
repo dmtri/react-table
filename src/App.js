@@ -1,6 +1,6 @@
 import Table from "./table";
 import data from "./mockData";
-import axios from 'axios'
+// import axios from 'axios'
 
 import "./App.css";
 
