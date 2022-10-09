@@ -1,14 +1,14 @@
-// TODO: props validation
-
+import PropTypes from "prop-types";
 import { useEffect, useRef } from "react";
 import { SORT_STATE, generateAllIndexes, objectAccessor } from "../common.js";
 import { useIndeterminateCheckbox } from "../hooks.js";
 
 const Table = ({
   selectable,
+  sortable,
   selectedIndexes,
   onSelectedIndexesChange,
-  onSelectionChange,
+  onSelectionChangeCallback,
   emptyCellPlaceholder,
   data,
   columns,
@@ -17,14 +17,14 @@ const Table = ({
   renderCheckbox,
   renderCheckboxAll,
   renderColumns,
-  sortFilter,
+  sortFilter = {},
   onSortFilterChange,
   onCellClick,
 }) => {
   const checkboxAllRef = useRef();
   useEffect(() => {
-    onSelectionChange && onSelectionChange(selectedIndexes);
-  }, [selectedIndexes, onSelectionChange]);
+    onSelectionChangeCallback && onSelectionChangeCallback(selectedIndexes);
+  }, [selectedIndexes, onSelectionChangeCallback]);
   useIndeterminateCheckbox(checkboxAllRef, selectedIndexes, data.length);
 
   const INTERNAL_renderRows = () => {
@@ -32,7 +32,7 @@ const Table = ({
     if (!rows || !rows.length) return;
     if (renderRow) return rows.map(renderRow);
     return rows.map((row, index) => (
-      <tr key={index}>
+      <tr key={index} title="row">
         <td>{selectable && INTERNAL_renderCheckbox(index)}</td>
         {INTERNAL_renderCell(row)}
       </tr>
@@ -44,10 +44,11 @@ const Table = ({
     return columns.map(({ title, path }, index) => (
       <th
         key={index}
+        title="col-heading"
         className="react-table _col-heading"
         onClick={() => sortColumn(path)}
       >
-        <span> {renderSort(path)} </span>
+        {sortable && renderSort(path)}
         {title}
       </th>
     ));
@@ -55,12 +56,19 @@ const Table = ({
 
   const INTERNAL_renderCell = (row) => {
     const cells = columns.map(({ path }) => {
-      const cellValue = objectAccessor(row, path) || emptyCellPlaceholder || "-";
-      return typeof cellValue === "object" ? JSON.stringify(cellValue) : cellValue;
+      const cellValue =
+        objectAccessor(row, path) || emptyCellPlaceholder || "-";
+      return typeof cellValue === "object"
+        ? JSON.stringify(cellValue)
+        : cellValue;
     });
     if (renderCell) return cells.map(renderCell);
     return cells.map((cell, index) => (
-      <td key={index} onClick={() => onCellClick && onCellClick(cell, index)}>
+      <td
+        title="cell"
+        key={index}
+        onClick={() => onCellClick && onCellClick(cell, index)}
+      >
         {cell}
       </td>
     ));
@@ -70,6 +78,7 @@ const Table = ({
     if (renderCheckboxAll) return renderCheckboxAll();
     return (
       <input
+        title="checkbox-all"
         ref={checkboxAllRef}
         type="checkbox"
         checked={
@@ -84,6 +93,7 @@ const Table = ({
     if (renderCheckbox) return renderCheckbox();
     return (
       <input
+        title="checkbox"
         type="checkbox"
         checked={selectedIndexes.includes(index)}
         onChange={(e) => handleChangeCheckbox(e.target.checked, index)}
@@ -116,7 +126,7 @@ const Table = ({
     } else if (sortFilter[path] === SORT_STATE.DESC) {
       text = "desc";
     }
-    return text;
+    return <span title="sort-icon">{text}</span>;
   };
 
   const getEmptySortFilter = () => {
@@ -124,12 +134,13 @@ const Table = ({
     columns.forEach(({ path }) => {
       newFilter[path] = SORT_STATE.NONE;
     });
-    return newFilter
-  }
+    return newFilter;
+  };
 
   const sortColumn = (path) => {
+    if (!sortable) return;
     // only support single column sort for now
-    const newFilter = getEmptySortFilter()
+    const newFilter = getEmptySortFilter();
     if (sortFilter[path] === SORT_STATE.NONE) {
       newFilter[path] = SORT_STATE.ASC;
     } else if (sortFilter[path] === SORT_STATE.ASC) {
@@ -151,6 +162,25 @@ const Table = ({
       <tbody>{INTERNAL_renderRows()}</tbody>
     </table>
   );
+};
+
+Table.propTypes = {
+  selectable: PropTypes.bool,
+  sortable: PropTypes.bool,
+  selectedIndexes: PropTypes.array,
+  onSelectedIndexesChange: PropTypes.func,
+  onSelectionChangeCallback: PropTypes.func,
+  emptyCellPlaceholder: PropTypes.string,
+  data: PropTypes.array.isRequired,
+  columns: PropTypes.array.isRequired,
+  renderRow: PropTypes.func,
+  renderCell: PropTypes.func,
+  renderCheckbox: PropTypes.func,
+  renderCheckboxAll: PropTypes.func,
+  renderColumns: PropTypes.func,
+  sortFilter: PropTypes.object,
+  onSortFilterChange: PropTypes.func,
+  onCellClick: PropTypes.func,
 };
 
 export default Table;

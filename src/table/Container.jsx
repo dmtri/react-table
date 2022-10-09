@@ -128,6 +128,7 @@ const TableContainer = ({
           />
           <Table
             selectable={selectable}
+            sortable={sortable}
             selectedIndexes={selectedIndexes}
             onSelectedIndexesChange={setSelectedIndexes}
             onSelectionChange={onSelectionChange}

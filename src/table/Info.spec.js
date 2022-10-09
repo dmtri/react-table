@@ -16,7 +16,7 @@ const setup = () => {
   return info;
 };
 
-it("renders Search component with correct placeholder", () => {
+it("renders Info component with correct text", () => {
   const info = setup();
   expect(info).toHaveTextContent(`Selected: ${selectedIndexes.length} items`)
 });

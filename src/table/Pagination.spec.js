@@ -30,7 +30,7 @@ const setup = () => {
   return { prevButton, nextButton, currentPageElement };
 };
 
-it("renders Search component with correct placeholder", () => {
+it("renders Pagination component with correct page text", () => {
   const { currentPageElement } = setup();
   expect(currentPageElement).toBeInTheDocument()
   expect(currentPageElement).toHaveTextContent('Page: 2 / 20')

@@ -39,8 +39,8 @@ const Pagination = ({
       <span title="current-page">Page: {currentPage} / {lastPage} </span>
       <button title="next-button" onClick={nextPage}>Next page</button>
 
-      <span>Per Page: {perPage}</span>
-      <span>Total filtered: {total}</span>
+      <span>Per page: {perPage}</span>
+      <span>Total rows: {total}</span>
       <select
         name="perPage"
         id="perPage"
