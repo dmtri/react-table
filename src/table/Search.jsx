@@ -14,7 +14,7 @@ const Search = ({
 
   const onChangeSearch = (e) => {
     const { value } = e.target;
-    onSearchTermFilterChange(value);
+    onSearchTermFilterChange && onSearchTermFilterChange(value);
   };
   return renderSearch ? (
     renderSearch()
