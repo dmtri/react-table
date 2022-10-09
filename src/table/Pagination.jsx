@@ -36,13 +36,13 @@ const Pagination = ({
 
   return (
     <div className="react-table _pagination">
-      <button title="prev-button" onClick={prevPage}>
+      <button title="prev-button" onClick={prevPage} disabled={currentPage <= 1}>
         Previous page
       </button>
       <span title="current-page">
         Page: {currentPage} / {lastPage}{" "}
       </span>
-      <button title="next-button" onClick={nextPage}>
+      <button title="next-button" onClick={nextPage} disabled={currentPage >= lastPage}>
         Next page
       </button>
       <div>
