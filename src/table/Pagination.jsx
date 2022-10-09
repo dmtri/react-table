@@ -45,20 +45,21 @@ const Pagination = ({
       <button title="next-button" onClick={nextPage}>
         Next page
       </button>
-
-      <span title="per-page">Per page: {perPage}</span>
-      <span title="total-rows">Total rows: {total}</span>
-      <select
-        title="select-perpage"
-        name="perPage"
-        id="perPage"
-        onChange={onChangePerPage}
-        value={perPage}
-      >
-        <option value={25}>25</option>
-        <option title="perpage-50" value={50}>50</option>
-        <option value={100}>100</option>
-      </select>
+      <div>
+        <span title="per-page">Per page: {perPage}</span>
+        <select
+          title="select-perpage"
+          name="perPage"
+          id="perPage"
+          onChange={onChangePerPage}
+          value={perPage}
+        >
+          <option value={25}>25</option>
+          <option title="perpage-50" value={50}>50</option>
+          <option value={100}>100</option>
+        </select>
+        <span title="total-rows">Total rows: {total}</span>
+      </div>
     </div>
   );
 };

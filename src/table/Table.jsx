@@ -122,9 +122,9 @@ const Table = ({
     if (sortFilter[path] === SORT_STATE.NONE) {
       text = "";
     } else if (sortFilter[path] === SORT_STATE.ASC) {
-      text = "asc";
+      text = "▲";
     } else if (sortFilter[path] === SORT_STATE.DESC) {
-      text = "desc";
+      text = "▼";
     }
     return <span title="sort-icon">{text}</span>;
   };
@@ -152,7 +152,7 @@ const Table = ({
   };
 
   return (
-    <table>
+    <table className="react-table _table">
       <thead>
         <tr>
           <th>{selectable && INTERNAL_renderCheckboxAll()}</th>

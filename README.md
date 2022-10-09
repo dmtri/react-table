@@ -5,9 +5,7 @@ React Minimal Table component for React
 
 ## Screenshots
 
-TBD
-
-
+<img src="https://i.postimg.cc/QMpMXkgQ/image.png" width="550"/>
 
 ## Install & Running development mode
 
@@ -49,7 +47,7 @@ export default App;
 
 
 ### Table (TableContainer)
-```
+````js
 TableContainer.propTypes = {
   dataSource: PropTypes.oneOfType([PropTypes.array, PropTypes.func]).isRequired, // could be an array or a function to fetch async data
   loading: PropTypes.bool,
@@ -70,11 +68,11 @@ TableContainer.propTypes = {
   onPaginationChange: PropTypes.func, // callback when pagination changes
   onCellClick: PropTypes.func, // callback when cell is clicked
 };
-```
+````
 
 ### Pagination
 
-```
+````js
 Pagination.propTypes = {
   perPage: PropTypes.number.isRequired, // number of rows per page
   onPerpageChange: PropTypes.func.isRequired, // callback when perPage changes
@@ -83,10 +81,10 @@ Pagination.propTypes = {
   total: PropTypes.number.isRequired, // total number of rows (after filtering)
   onPaginationChangeCallback: PropTypes.func, // callback when pagination changes (if using through TableContainer)
 };
-```
+````
 
 ### Search
-```
+````js
 Search.propTypes = {
   searchTermFilter: PropTypes.string.isRequired, // current search term
   onSearchTermFilterChange: PropTypes.func.isRequired, // callback when search input changes
@@ -94,7 +92,7 @@ Search.propTypes = {
   renderSearch: PropTypes.func, // custom function to render search input
   onSearchTermFilterChangeCallback: PropTypes.func, // callback when search input changes (if using through TableContainer)
 };
-```
+````
 
 ## Example
 

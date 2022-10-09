@@ -14,6 +14,8 @@ import {
 } from "../common.js";
 import { useInitialData } from "../hooks.js";
 
+import "../index.scss";
+
 const TableContainer = ({
   dataSource,
   columns,
@@ -122,8 +124,12 @@ const TableContainer = ({
     setSelectedIndexes([]);
   }, [currentPage]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [perPage]);
+
   return (
-    <>
+    <div className="react-table">
       {!tableDataLoading ? (
         <>
           <Search
@@ -166,7 +172,7 @@ const TableContainer = ({
       ) : (
         "...loading"
       )}
-    </>
+    </div>
   );
 };
 
