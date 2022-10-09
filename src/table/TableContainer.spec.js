@@ -37,6 +37,7 @@ const onCellClick = jest.fn();
 const onSelectionChange = jest.fn();
 const onSearchTermFilterChange = jest.fn();
 const onPaginationChange = jest.fn();
+const displayDebugInfo = true
 
 let component = null;
 
@@ -59,6 +60,7 @@ const defaultTestProps = {
   onPaginationChange,
   onCellClick,
   loading,
+  displayDebugInfo,
 };
 
 const setup = ({
@@ -80,6 +82,7 @@ const setup = ({
   onPaginationChange,
   onCellClick,
   loading,
+  displayDebugInfo,
 }) => {
   component = render(
     <TableContainer
@@ -101,6 +104,7 @@ const setup = ({
       onSelectionChange={onSelectionChange}
       onPaginationChange={onPaginationChange}
       onCellClick={onCellClick}
+      displayDebugInfo={displayDebugInfo}
     />
   );
 };

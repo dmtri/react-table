@@ -35,6 +35,7 @@ const TableContainer = ({
   onSelectionChange,
   onPaginationChange,
   onCellClick,
+  displayDebugInfo = false,
 }) => {
   const {
     perPage: perPageHistory,
@@ -45,6 +46,7 @@ const TableContainer = ({
   } = getStateFromHistory();
 
   // general states
+  const [tableData, tableDataLoading] = useInitialData(dataSource, loading);
   const [selectedIndexes, setSelectedIndexes] = useState(
     selectedIndexesHistory || []
   );
@@ -66,7 +68,6 @@ const TableContainer = ({
   const [perPage, setPerpage] = useState(perPageHistory || 25);
   const [currentPage, setCurrentPage] = useState(currentPageHistory || 1);
   const [paginatedData, setPaginatedData] = useState([]);
-  const [tableData, tableDataLoading] = useInitialData(dataSource, loading);
 
   useEffect(() => {
     modifyHistory({
@@ -78,6 +79,7 @@ const TableContainer = ({
     });
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
 
+  // filter and sort
   useEffect(() => {
     const filteredData = tableData.filter((row) => {
       if (!searchTermFilter) return true;
@@ -165,7 +167,7 @@ const TableContainer = ({
             onPaginationChangeCallback={onPaginationChange}
             total={filteredData.length}
           />
-          <Info data={paginatedData} selectedIndexes={selectedIndexes} />
+          {displayDebugInfo && <Info data={paginatedData} selectedIndexes={selectedIndexes} />}
         </>
       ) : renderLoader ? (
         renderLoader()
@@ -195,6 +197,7 @@ TableContainer.propTypes = {
   onSelectionChange: PropTypes.func,
   onPaginationChange: PropTypes.func,
   onCellClick: PropTypes.func,
+  displayDebugInfo: PropTypes.bool,
 };
 
 const ErrorFallback = ({ error }) => {

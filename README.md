@@ -67,6 +67,7 @@ TableContainer.propTypes = {
   onSelectionChange: PropTypes.func, // callback when selection changes
   onPaginationChange: PropTypes.func, // callback when pagination changes
   onCellClick: PropTypes.func, // callback when cell is clicked
+  displayDebugInfo: PropTypes.bool, // display Info component for debugging
 };
 ````
 
@@ -101,5 +102,6 @@ Search.propTypes = {
 ## Test Case & Coverage
 
 ```bash
+# please use node >= 16.0.0
 yarn test --coverage
 ```

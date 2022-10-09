@@ -19,7 +19,6 @@ export function objectAccessor(obj, path) {
   if (paths.length === 1) {
     return obj[path];
   }
-  // TODO: add test cases
   let cell = obj;
   // handle nested path: prop1.prop2.prop3
   while (paths.length) {
