@@ -25,19 +25,19 @@ const Pagination = ({
     onCurrentPageChange(currentPage - 1);
   };
 
+  const lastPage = Math.ceil(total / perPage);
   const nextPage = () => {
-    const maxPage = Math.ceil(total / perPage);
-    if (currentPage >= maxPage) {
+    if (currentPage >= lastPage) {
       return;
     }
     onCurrentPageChange(currentPage + 1);
   };
-
+  
   return (
     <div className="react-table _pagination">
-      <button onClick={prevPage}>prev</button>
-      <span>Current page: {currentPage}</span>
-      <button onClick={nextPage}>next</button>
+      <button title="prev-button" onClick={prevPage}>Previous page</button>
+      <span title="current-page">Page: {currentPage} / {lastPage} </span>
+      <button title="next-button" onClick={nextPage}>Next page</button>
 
       <span>Per Page: {perPage}</span>
       <span>Total filtered: {total}</span>

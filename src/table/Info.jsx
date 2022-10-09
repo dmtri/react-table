@@ -6,9 +6,10 @@ const Info = ({ data, selectedIndexes }) => {
   );
 
   return (
-    <div>
+    <>
+      <pre title="info-length">Selected: {selectedRows.length} items</pre>
       <pre>Selected: {JSON.stringify(selectedRows, null, 4)}</pre>
-    </div>
+    </>
   );
 };
 
