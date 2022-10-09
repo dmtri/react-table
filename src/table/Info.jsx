@@ -1,7 +1,7 @@
 // TODO: props validation
 
-const Info = ({ paginatedData, selectedIndexes }) => {
-  const selectedRows = paginatedData.filter((_, index) =>
+const Info = ({ data, selectedIndexes }) => {
+  const selectedRows = data.filter((_, index) =>
     selectedIndexes.includes(index)
   );
 

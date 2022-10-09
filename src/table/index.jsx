@@ -106,44 +106,53 @@ const TableContainer = ({
     setPaginatedData(filteredData.slice(start, start + perPage));
   }, [filteredData, perPage, currentPage, setPaginatedData]);
 
+  useEffect(() => {
+    setCurrentPage(1)
+    setSelectedIndexes([])
+  }, [searchTermFilter]);
+
+  useEffect(() => {
+    setSelectedIndexes([])
+  }, [currentPage]);
+
   return (
     <>
       {!tableDataLoading ? (
         <>
           <Search
             searchTermFilter={searchTermFilter}
-            setSearchTermFilter={setSearchTermFilter}
+            onSearchTermFilterChange={setSearchTermFilter}
             searchColumn={searchColumn}
             renderSearch={renderSearch}
-            onSearchTermFilterChange={onSearchTermFilterChange}
+            onSearchTermFilterChangeCallback={onSearchTermFilterChange}
           />
           <Table
             selectable={selectable}
             selectedIndexes={selectedIndexes}
-            setSelectedIndexes={setSelectedIndexes}
+            onSelectedIndexesChange={setSelectedIndexes}
             onSelectionChange={onSelectionChange}
-            renderCheckboxAll={renderCheckboxAll}
-            renderCheckbox={renderCheckbox}
-            emptyCellPlaceholder={emptyCellPlaceholder}
             data={paginatedData}
             columns={columns}
+            sortFilter={sortFilter}
+            onSortFilterChange={setSortFilter}
+            onCellClick={onCellClick}
+            emptyCellPlaceholder={emptyCellPlaceholder}
             renderColumns={renderColumns}
             renderRow={renderRow}
             renderCell={renderCell}
-            sortFilter={sortFilter}
-            setSortFilter={setSortFilter}
-            onCellClick={onCellClick}
+            renderCheckboxAll={renderCheckboxAll}
+            renderCheckbox={renderCheckbox}
           />
           <Pagination
             perPage={perPage}
-            setPerpage={setPerpage}
+            onPerpageChange={setPerpage}
             currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            onPaginationChange={onPaginationChange}
+            onCurrentPageChange={setCurrentPage}
+            onPaginationChangeCallback={onPaginationChange}
             total={filteredData.length}
           />
           <Info
-            paginatedData={paginatedData}
+            data={paginatedData}
             selectedIndexes={selectedIndexes}
           />
         </>

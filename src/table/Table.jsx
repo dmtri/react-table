@@ -7,7 +7,7 @@ import { useIndeterminateCheckbox } from "../hooks.js";
 const Table = ({
   selectable,
   selectedIndexes,
-  setSelectedIndexes,
+  onSelectedIndexesChange,
   onSelectionChange,
   emptyCellPlaceholder,
   data,
@@ -18,7 +18,7 @@ const Table = ({
   renderCheckboxAll,
   renderColumns,
   sortFilter,
-  setSortFilter,
+  onSortFilterChange,
   onCellClick,
 }) => {
   const checkboxAllRef = useRef();
@@ -94,15 +94,15 @@ const Table = ({
   const handleChangeCheckbox = (checked, index) => {
     if (index === "all") {
       if (checked) {
-        setSelectedIndexes(generateAllIndexes(data.length));
+        onSelectedIndexesChange(generateAllIndexes(data.length));
       } else {
-        setSelectedIndexes([]);
+        onSelectedIndexesChange([]);
       }
     } else {
       if (checked) {
-        setSelectedIndexes([...selectedIndexes, index]);
+        onSelectedIndexesChange([...selectedIndexes, index]);
       } else {
-        setSelectedIndexes(selectedIndexes.filter((idx) => idx !== index));
+        onSelectedIndexesChange(selectedIndexes.filter((idx) => idx !== index));
       }
     }
   };
@@ -137,7 +137,7 @@ const Table = ({
     } else if (sortFilter[path] === SORT_STATE.DESC) {
       newFilter[path] = SORT_STATE.NONE;
     }
-    setSortFilter(newFilter);
+    onSortFilterChange(newFilter);
   };
 
   return (

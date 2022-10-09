@@ -3,18 +3,18 @@ import { useEffect } from "react";
 
 const Search = ({
   searchTermFilter,
-  setSearchTermFilter,
+  onSearchTermFilterChange,
   searchColumn,
   renderSearch,
-  onSearchTermFilterChange,
+  onSearchTermFilterChangeCallback,
 }) => {
   useEffect(() => {
-    onSearchTermFilterChange && onSearchTermFilterChange(searchTermFilter);
-  }, [searchTermFilter, onSearchTermFilterChange]);
+    onSearchTermFilterChangeCallback && onSearchTermFilterChangeCallback(searchTermFilter);
+  }, [searchTermFilter, onSearchTermFilterChangeCallback]);
 
-  const onChangeSearchTermFilter = (e) => {
+  const onChangeSearch = (e) => {
     const { value } = e.target;
-    setSearchTermFilter(value);
+    onSearchTermFilterChange(value);
   };
   return renderSearch ? (
     renderSearch()
@@ -22,7 +22,7 @@ const Search = ({
     <input
       title="Search"
       value={searchTermFilter}
-      onChange={onChangeSearchTermFilter}
+      onChange={onChangeSearch}
       placeholder={`search by ${searchColumn}`}
     />
   );

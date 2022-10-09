@@ -2,27 +2,27 @@
 import { useEffect } from "react";
 
 const Pagination = ({
-  onPaginationChange,
   perPage,
+  onPerpageChange,
   currentPage,
-  setPerpage,
-  setCurrentPage,
+  onCurrentPageChange,
   total,
+  onPaginationChangeCallback,
 }) => {
   useEffect(() => {
-    onPaginationChange && onPaginationChange(currentPage, perPage);
-  }, [currentPage, perPage, onPaginationChange]);
+    onPaginationChangeCallback && onPaginationChangeCallback(currentPage, perPage);
+  }, [currentPage, perPage, onPaginationChangeCallback]);
 
   const onChangePerPage = (e) => {
     const { value } = e.target;
-    setPerpage(parseInt(value, 10));
+    onPerpageChange(parseInt(value, 10));
   };
 
   const prevPage = () => {
     if (currentPage <= 1) {
       return;
     }
-    setCurrentPage(currentPage - 1);
+    onCurrentPageChange(currentPage - 1);
   };
 
   const nextPage = () => {
@@ -30,7 +30,7 @@ const Pagination = ({
     if (currentPage >= maxPage) {
       return;
     }
-    setCurrentPage(currentPage + 1);
+    onCurrentPageChange(currentPage + 1);
   };
 
   return (
