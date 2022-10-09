@@ -1,4 +1,4 @@
-// TODO: props validation
+import PropTypes from "prop-types";
 
 const Info = ({ data, selectedIndexes }) => {
   const selectedRows = data.filter((_, index) =>
@@ -11,6 +11,11 @@ const Info = ({ data, selectedIndexes }) => {
       <pre>Selected: {JSON.stringify(selectedRows, null, 4)}</pre>
     </>
   );
+};
+
+Info.propTypes = {
+  data: PropTypes.array.isRequired,
+  selectedIndexes: PropTypes.array.isRequired,
 };
 
 export default Info;

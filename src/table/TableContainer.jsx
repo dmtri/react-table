@@ -1,4 +1,4 @@
-// TODO: props validation
+import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -6,7 +6,12 @@ import Pagination from "./Pagination";
 import Table from "./Table";
 import Search from "./Search";
 import Info from "./Info";
-import { SORT_STATE, getStateFromHistory, modifyHistory, objectAccessor } from "../common.js";
+import {
+  SORT_STATE,
+  getStateFromHistory,
+  modifyHistory,
+  objectAccessor,
+} from "../common.js";
 import { useInitialData } from "../hooks.js";
 
 const TableContainer = ({
@@ -46,11 +51,13 @@ const TableContainer = ({
   const [searchTermFilter, setSearchTermFilter] = useState(
     searchTermFilterHistory || ""
   );
-  const defaultSortFilter = {}
+  const defaultSortFilter = {};
   columns.forEach((col) => {
     defaultSortFilter[col.path] = SORT_STATE.NONE;
   });
-  const [sortFilter, setSortFilter] = useState(sortHistory || defaultSortFilter);
+  const [sortFilter, setSortFilter] = useState(
+    sortHistory || defaultSortFilter
+  );
   const [filteredData, setFilteredData] = useState([]);
 
   // pagination states
@@ -71,8 +78,8 @@ const TableContainer = ({
 
   useEffect(() => {
     const filteredData = tableData.filter((row) => {
-      if (!searchTermFilter) return true
-      const col = objectAccessor(row, searchColumn)
+      if (!searchTermFilter) return true;
+      const col = objectAccessor(row, searchColumn);
       return col && col.toString().includes(searchTermFilter);
     });
 
@@ -107,12 +114,12 @@ const TableContainer = ({
   }, [filteredData, perPage, currentPage, setPaginatedData]);
 
   useEffect(() => {
-    setCurrentPage(1)
-    setSelectedIndexes([])
+    setCurrentPage(1);
+    setSelectedIndexes([]);
   }, [searchTermFilter]);
 
   useEffect(() => {
-    setSelectedIndexes([])
+    setSelectedIndexes([]);
   }, [currentPage]);
 
   return (
@@ -131,7 +138,7 @@ const TableContainer = ({
             sortable={sortable}
             selectedIndexes={selectedIndexes}
             onSelectedIndexesChange={setSelectedIndexes}
-            onSelectionChange={onSelectionChange}
+            onSelectionChangeCallback={onSelectionChange}
             data={paginatedData}
             columns={columns}
             sortFilter={sortFilter}
@@ -152,16 +159,36 @@ const TableContainer = ({
             onPaginationChangeCallback={onPaginationChange}
             total={filteredData.length}
           />
-          <Info
-            data={paginatedData}
-            selectedIndexes={selectedIndexes}
-          />
+          <Info data={paginatedData} selectedIndexes={selectedIndexes} />
         </>
+      ) : renderLoader ? (
+        renderLoader()
       ) : (
-        renderLoader ? renderLoader() : "...loading"
+        "...loading"
       )}
     </>
   );
+};
+
+TableContainer.propTypes = {
+  dataSource: PropTypes.oneOfType([PropTypes.array, PropTypes.func]).isRequired,
+  columns: PropTypes.array.isRequired,
+  renderColumns: PropTypes.func,
+  renderRow: PropTypes.func,
+  renderCell: PropTypes.func,
+  renderCheckbox: PropTypes.func,
+  renderCheckboxAll: PropTypes.func,
+  renderSearch: PropTypes.func,
+  renderLoader: PropTypes.func,
+  emptyCellPlaceholder: PropTypes.string,
+  selectable: PropTypes.bool,
+  sortable: PropTypes.bool,
+  searchColumn: PropTypes.string,
+  onSearchTermFilterChange: PropTypes.func,
+  loading: PropTypes.bool,
+  onSelectionChange: PropTypes.func,
+  onPaginationChange: PropTypes.func,
+  onCellClick: PropTypes.func,
 };
 
 const ErrorFallback = ({ error }) => {
@@ -173,10 +200,10 @@ const ErrorFallback = ({ error }) => {
   );
 };
 
-const Container = (props) => (
+const TableContainerWithErrorBoundary = (props) => (
   <ErrorBoundary FallbackComponent={ErrorFallback}>
     <TableContainer {...props} />
   </ErrorBoundary>
 );
 
-export default Container;
+export default TableContainerWithErrorBoundary;

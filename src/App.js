@@ -1,6 +1,5 @@
 import Table from "./table";
 import data from "./mockData";
-// import axios from "axios";
 
 import "./App.css";
 
@@ -22,7 +21,7 @@ function App() {
           { title: "Title", path: "title" },
           { title: "Body", path: "body" },
         ]}
-        searchColumn="userId.id"
+        searchColumn="userId"
         // onSearchTermFilterChange={(term) => alert(term)}
         // onCellClick={(cell) => alert(JSON.stringify(cell))}
         // renderCell={(cell) => <td className="test-cell">{cell}</td>}

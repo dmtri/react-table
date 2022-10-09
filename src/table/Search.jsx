@@ -1,4 +1,4 @@
-// TODO: props validation
+import PropTypes from "prop-types";
 import { useEffect } from "react";
 
 const Search = ({
@@ -9,7 +9,8 @@ const Search = ({
   onSearchTermFilterChangeCallback,
 }) => {
   useEffect(() => {
-    onSearchTermFilterChangeCallback && onSearchTermFilterChangeCallback(searchTermFilter);
+    onSearchTermFilterChangeCallback &&
+      onSearchTermFilterChangeCallback(searchTermFilter);
   }, [searchTermFilter, onSearchTermFilterChangeCallback]);
 
   const onChangeSearch = (e) => {
@@ -20,12 +21,20 @@ const Search = ({
     renderSearch()
   ) : (
     <input
-      title="Search"
+      title="search"
       value={searchTermFilter}
       onChange={onChangeSearch}
       placeholder={`search by ${searchColumn}`}
     />
   );
+};
+
+Search.propTypes = {
+  searchTermFilter: PropTypes.string.isRequired,
+  onSearchTermFilterChange: PropTypes.func.isRequired,
+  searchColumn: PropTypes.string.isRequired,
+  renderSearch: PropTypes.func,
+  onSearchTermFilterChangeCallback: PropTypes.func,
 };
 
 export default Search;

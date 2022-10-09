@@ -1,4 +1,4 @@
-// TODO: props validation
+import PropTypes from "prop-types";
 import { useEffect } from "react";
 
 const Pagination = ({
@@ -10,7 +10,8 @@ const Pagination = ({
   onPaginationChangeCallback,
 }) => {
   useEffect(() => {
-    onPaginationChangeCallback && onPaginationChangeCallback(currentPage, perPage);
+    onPaginationChangeCallback &&
+      onPaginationChangeCallback(currentPage, perPage);
   }, [currentPage, perPage, onPaginationChangeCallback]);
 
   const onChangePerPage = (e) => {
@@ -32,27 +33,43 @@ const Pagination = ({
     }
     onCurrentPageChange(currentPage + 1);
   };
-  
+
   return (
     <div className="react-table _pagination">
-      <button title="prev-button" onClick={prevPage}>Previous page</button>
-      <span title="current-page">Page: {currentPage} / {lastPage} </span>
-      <button title="next-button" onClick={nextPage}>Next page</button>
+      <button title="prev-button" onClick={prevPage}>
+        Previous page
+      </button>
+      <span title="current-page">
+        Page: {currentPage} / {lastPage}{" "}
+      </span>
+      <button title="next-button" onClick={nextPage}>
+        Next page
+      </button>
 
-      <span>Per page: {perPage}</span>
-      <span>Total rows: {total}</span>
+      <span title="per-page">Per page: {perPage}</span>
+      <span title="total-rows">Total rows: {total}</span>
       <select
+        title="select-perpage"
         name="perPage"
         id="perPage"
         onChange={onChangePerPage}
         value={perPage}
       >
         <option value={25}>25</option>
-        <option value={50}>50</option>
+        <option title="perpage-50" value={50}>50</option>
         <option value={100}>100</option>
       </select>
     </div>
   );
+};
+
+Pagination.propTypes = {
+  perPage: PropTypes.number.isRequired,
+  onPerpageChange: PropTypes.func.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  onCurrentPageChange: PropTypes.func.isRequired,
+  total: PropTypes.number.isRequired,
+  onPaginationChangeCallback: PropTypes.func,
 };
 
 export default Pagination;

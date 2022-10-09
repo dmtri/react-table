@@ -36,10 +36,12 @@ it("calls the appropriate callbacks when searchTerm changes", async () => {
 it("renders custom search", async () => {
   render(
     <Search
+      searchTermFilter=""
       searchColumn={searchColumn}
       renderSearch={() => (
         <input className="custom-input" placeholder="custom input" />
       )}
+      onSearchTermFilterChange={onSearchTermFilterChange}
     />
   );
   const input = screen.getByPlaceholderText("custom input");
