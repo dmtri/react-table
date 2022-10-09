@@ -6,12 +6,10 @@ import Pagination from "./Pagination";
 import Table from "./Table";
 import Search from "./Search";
 import Info from "./Info";
-import { SORT_STATE, getStateFromHistory, modifyHistory } from "../common.js";
+import { SORT_STATE, getStateFromHistory, modifyHistory, objectAccessor } from "../common.js";
 import { useInitialData } from "../hooks.js";
 
 // TODO: add header title/accessor
-// TODO: add render loader
-// TODO: add render sort
 /*
        columns: [
             { title: 'ID', field: 'ID' , type: 'numeric' },
@@ -22,9 +20,6 @@ import { useInitialData } from "../hooks.js";
             },
         ],
 */
-// override components: https://material-table.com/#/docs/features/component-overriding
-// TODO: allow callbacks for key events (onCellClick, onSearch, onPaginationChange, onSort): https://material-table.com/#/docs/features/selection
-
 const TableContainer = ({
   dataSource,
   columns,
@@ -34,6 +29,7 @@ const TableContainer = ({
   renderCheckbox,
   renderCheckboxAll,
   renderSearch,
+  renderLoader,
   emptyCellPlaceholder,
   selectable = true,
   sortable = true,
@@ -84,11 +80,13 @@ const TableContainer = ({
     });
   }, [searchTermFilter, currentPage, perPage, sortFilter, selectedIndexes]);
 
-  // TODO: create accessor helper
   useEffect(() => {
     const filteredData = tableData.filter((row) => {
-      return row[searchColumn].includes(searchTermFilter);
+      if (!searchTermFilter) return true
+      const col = objectAccessor(row, searchColumn)
+      return col && col.toString().includes(searchTermFilter);
     });
+
     const colToSort = Object.keys(sortFilter).find(
       (col) => sortFilter[col] !== SORT_STATE.NONE
     );
@@ -161,7 +159,7 @@ const TableContainer = ({
           />
         </>
       ) : (
-        "...loading"
+        renderLoader ? renderLoader() : "...loading"
       )}
     </>
   );

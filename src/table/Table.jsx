@@ -1,7 +1,7 @@
 // TODO: props validation
 
 import { useEffect, useRef } from "react";
-import { SORT_STATE, generateAllIndexes } from "../common.js";
+import { SORT_STATE, generateAllIndexes, objectAccessor } from "../common.js";
 import { useIndeterminateCheckbox } from "../hooks.js";
 
 const Table = ({
@@ -55,24 +55,8 @@ const Table = ({
 
   const INTERNAL_renderCell = (row) => {
     const cells = columns.map((col) => {
-      // handle nested path: prop1.prop2.prop3
-      const paths = col.split(".");
-      if (paths.length === 1) {
-        return row[col];
-      }
-      let cell = row;
-      while (paths.length) {
-        try {
-          cell = cell[paths[0]];
-        } catch (e) {
-          // gracefully handle bad data
-          cell = emptyCellPlaceholder || "-";
-          break;
-        }
-        paths.shift();
-      }
-      // handle bad data, cell is object
-      return typeof cell === "object" ? JSON.stringify(cell) : cell;
+      const cellValue = objectAccessor(row, col) || emptyCellPlaceholder || "-";
+      return typeof cellValue === "object" ? JSON.stringify(cellValue) : cellValue;
     });
     if (renderCell) return cells.map(renderCell);
     return cells.map((cell, index) => (

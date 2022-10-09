@@ -14,6 +14,27 @@ export function generateAllIndexes(total) {
   return allIndexes;
 }
 
+export function objectAccessor(obj, path) {
+  const paths = path.split(".");
+  if (paths.length === 1) {
+    return obj[path];
+  }
+  // TODO: add test cases
+  let cell = obj;
+  // handle nested path: prop1.prop2.prop3
+  while (paths.length) {
+    try {
+      cell = cell[paths[0]];
+    } catch (e) {
+      // gracefully handle bad data
+      cell = null
+      break;
+    }
+    paths.shift();
+  }
+  return cell
+}
+
 export const getStateFromHistory = () => {
   const urlState = {};
   const { query } = qs.parseUrl(window.location.href);
