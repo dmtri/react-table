@@ -172,10 +172,10 @@ const ErrorFallback = ({ error }) => {
   );
 };
 
-const TableWithErrorBoundary = (props) => (
+const Container = (props) => (
   <ErrorBoundary FallbackComponent={ErrorFallback}>
     <TableContainer {...props} />
   </ErrorBoundary>
 );
 
-export default TableWithErrorBoundary;
+export default Container;
