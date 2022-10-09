@@ -4,12 +4,11 @@ import Search from "./Search";
 
 const onSearchTermFilterChange = jest.fn();
 const onSearchTermFilterChangeCallback = jest.fn();
-const newSearchTerm = 'test'
+const searchTermFilter = "";
+const searchColumn = "title";
+const newSearchTerm = "test";
 
 const setup = () => {
-  const searchTermFilter = "";
-  const searchColumn = "title";
-
   render(
     <Search
       searchTermFilter={searchTermFilter}
@@ -32,4 +31,17 @@ it("calls the appropriate callbacks when searchTerm changes", async () => {
   fireEvent.input(input, { target: { value: newSearchTerm } });
   expect(onSearchTermFilterChange).toHaveBeenCalled();
   expect(onSearchTermFilterChangeCallback).toHaveBeenCalled();
+});
+
+it("renders custom search", async () => {
+  render(
+    <Search
+      searchColumn={searchColumn}
+      renderSearch={() => (
+        <input className="custom-input" placeholder="custom input" />
+      )}
+    />
+  );
+  const input = screen.getByPlaceholderText("custom input");
+  expect(input).toBeInTheDocument();
 });
