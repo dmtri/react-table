@@ -16,8 +16,13 @@ function App() {
         //     }, 500);
         //   });
         // }}
-        columns={["userId", "id", "title", "body"]}
-        searchColumn={"userId.id"}
+        columns={[
+          { title: "User ID", path: "userId" },
+          { title: "Post ID", path: "id" },
+          { title: "Title", path: "title" },
+          { title: "Body", path: "body" },
+        ]}
+        searchColumn="userId.id"
         // onSearchTermFilterChange={(term) => alert(term)}
         // onCellClick={(cell) => alert(JSON.stringify(cell))}
         // renderCell={(cell) => <td className="test-cell">{cell}</td>}

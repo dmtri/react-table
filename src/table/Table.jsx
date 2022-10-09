@@ -41,21 +41,21 @@ const Table = ({
 
   const INTERNAL_renderColumns = () => {
     if (renderColumns) return columns.map(renderColumns);
-    return columns.map((col, index) => (
+    return columns.map(({ title, path }, index) => (
       <th
         key={index}
         className="react-table _col-heading"
-        onClick={() => sortColumn(col)}
+        onClick={() => sortColumn(path)}
       >
-        <span> {renderSort(col)} </span>
-        {col}
+        <span> {renderSort(path)} </span>
+        {title}
       </th>
     ));
   };
 
   const INTERNAL_renderCell = (row) => {
-    const cells = columns.map((col) => {
-      const cellValue = objectAccessor(row, col) || emptyCellPlaceholder || "-";
+    const cells = columns.map(({ path }) => {
+      const cellValue = objectAccessor(row, path) || emptyCellPlaceholder || "-";
       return typeof cellValue === "object" ? JSON.stringify(cellValue) : cellValue;
     });
     if (renderCell) return cells.map(renderCell);
@@ -107,30 +107,35 @@ const Table = ({
     }
   };
 
-  const renderSort = (col) => {
+  const renderSort = (path) => {
     let text = "";
-    if (sortFilter[col] === SORT_STATE.NONE) {
+    if (sortFilter[path] === SORT_STATE.NONE) {
       text = "";
-    } else if (sortFilter[col] === SORT_STATE.ASC) {
+    } else if (sortFilter[path] === SORT_STATE.ASC) {
       text = "asc";
-    } else if (sortFilter[col] === SORT_STATE.DESC) {
+    } else if (sortFilter[path] === SORT_STATE.DESC) {
       text = "desc";
     }
     return text;
   };
 
-  const sortColumn = (col) => {
-    // only support single column sort for now
-    const newFilter = { ...sortFilter };
-    columns.forEach((col) => {
-      newFilter[col] = SORT_STATE.NONE;
+  const getEmptySortFilter = () => {
+    const newFilter = {};
+    columns.forEach(({ path }) => {
+      newFilter[path] = SORT_STATE.NONE;
     });
-    if (sortFilter[col] === SORT_STATE.NONE) {
-      newFilter[col] = SORT_STATE.ASC;
-    } else if (sortFilter[col] === SORT_STATE.ASC) {
-      newFilter[col] = SORT_STATE.DESC;
-    } else if (sortFilter[col] === SORT_STATE.DESC) {
-      newFilter[col] = SORT_STATE.NONE;
+    return newFilter
+  }
+
+  const sortColumn = (path) => {
+    // only support single column sort for now
+    const newFilter = getEmptySortFilter()
+    if (sortFilter[path] === SORT_STATE.NONE) {
+      newFilter[path] = SORT_STATE.ASC;
+    } else if (sortFilter[path] === SORT_STATE.ASC) {
+      newFilter[path] = SORT_STATE.DESC;
+    } else if (sortFilter[path] === SORT_STATE.DESC) {
+      newFilter[path] = SORT_STATE.NONE;
     }
     setSortFilter(newFilter);
   };

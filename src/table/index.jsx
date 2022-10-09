@@ -9,17 +9,6 @@ import Info from "./Info";
 import { SORT_STATE, getStateFromHistory, modifyHistory, objectAccessor } from "../common.js";
 import { useInitialData } from "../hooks.js";
 
-// TODO: add header title/accessor
-/*
-       columns: [
-            { title: 'ID', field: 'ID' , type: 'numeric' },
-            { title: 'uitdeler', field: 'Uitdeler' },
-            { title: 'ontvanger', field: 'Ontvanger' },
-            { title: 'Uitgedeeld', field: 'Uitgedeeld', lookup: { 1: true, 0: false },},
-            { title: 'datum', field: 'Datum',
-            },
-        ],
-*/
 const TableContainer = ({
   dataSource,
   columns,
@@ -59,7 +48,7 @@ const TableContainer = ({
   );
   const defaultSortFilter = {}
   columns.forEach((col) => {
-    defaultSortFilter[col] = SORT_STATE.NONE;
+    defaultSortFilter[col.path] = SORT_STATE.NONE;
   });
   const [sortFilter, setSortFilter] = useState(sortHistory || defaultSortFilter);
   const [filteredData, setFilteredData] = useState([]);
@@ -138,9 +127,9 @@ const TableContainer = ({
             emptyCellPlaceholder={emptyCellPlaceholder}
             data={paginatedData}
             columns={columns}
+            renderColumns={renderColumns}
             renderRow={renderRow}
             renderCell={renderCell}
-            renderColumns={renderColumns}
             sortFilter={sortFilter}
             setSortFilter={setSortFilter}
             onCellClick={onCellClick}
