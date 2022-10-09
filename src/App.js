@@ -23,6 +23,7 @@ function App() {
           { title: "Body", path: "body" },
         ]}
         searchColumn="userId"
+        displayDebugInfo
       />
     </div>
   );
